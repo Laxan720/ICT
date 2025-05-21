@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="language" content="en">
+    <title>Unit 4: Fundamental of Digital Circuits - Dark Theme</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Import Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Iskoola+Pota&display=swap');
+
+        /* Dark Theme Base styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding: 1rem 1.5rem 100px 1.5rem;
+            background: linear-gradient(145deg, #000000 0%, #1a1a1a 70%, #2c2c2c 100%);
+            color: #ffffff; /* White text */
+            transition: background 0.5s ease-in-out;
+            overflow-x: hidden; margin: 0; min-height: 100vh;
+        }
+        body.lang-si { font-family: 'Iskoola Pota', 'Poppins', sans-serif; }
+
+        /* Matrix Canvas Styling */
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; display: block; opacity: 0.08; }
+
+        /* Main Container - Removed card styles */
+        .main-container { position: relative; width: 100%; }
+        .main-container > * { position: relative; z-index: 1; }
+
+        /* Header Title Styling */
+        #main-title { color: #ffffff; background: none; -webkit-background-clip: unset; background-clip: unset; -webkit-text-fill-color: unset; }
+         #main-subtitle { color: #cbd5e1; }
+
+        /* Sidebar Title Styling */
+         #topic-list-container h2 { color: #ffffff; }
+
+        /* Content Section Title Styling */
+         h2[data-key^="title_"] { color: #ffffff; }
+         h3[data-key^="video_title_"] { color: #e5e7eb; }
+
+        /* Content section visibility transition */
+        .content-section { display: none; opacity: 0; transform: translateY(15px); transition: opacity 0.3s ease-out, transform 0.3s ease-out; }
+        .content-section.visible { display: block; opacity: 1; transform: translateY(0); }
+
+        /* Topic List Item Styling */
+        .topic-list-item { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out, transform 0.3s ease-out; border-left-width: 3px; border-color: transparent; border-radius: 0.375rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem; background: rgba(42, 42, 42, 0.4); color: #a0a0a0; opacity: 1; transform: scale(1); transform-origin: left; }
+        .topic-list-item:hover { background: rgba(20, 184, 166, 0.15); border-color: #0d9488; transform: translateX(4px); color: #ccfbf1; opacity: 1; }
+        .topic-list-item.active { background-color: #14b8a6; border-color: #ccfbf1; color: #111827; font-weight: 600; transform: translateX(4px) scale(1); box-shadow: 0 3px 10px rgba(20, 184, 166, 0.3); opacity: 1; }
+        .topic-list-item.active:hover { background-color: #0d9488; border-color: #99f6e4; }
+        .topic-list-item.inactive { opacity: 0.5; transform: scale(1); border-color: transparent !important; box-shadow: none; background: rgba(42, 42, 42, 0.3); }
+        .topic-list-item.inactive:hover { opacity: 0.7; transform: translateX(2px); background: rgba(42, 42, 42, 0.5); color: #a0a0a0; }
+
+        /* Layout Adjustment on Topic Selection */
+        #topic-list-container { transition: flex-basis 0.5s ease-in-out, opacity 0.3s ease-in-out, margin-right 0.5s ease-in-out; }
+        #content-display-area { transition: flex-grow 0.5s ease-in-out; }
+        @media (min-width: 768px) { body.topic-selected #topic-list-container { flex-basis: 10%; opacity: 0.7; margin-right: 0.5rem; } body.topic-selected #topic-list-container .topic-list-item { padding: 0.5rem; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } body.topic-selected #topic-list-container h2 { font-size: 1rem; } body.topic-selected #content-display-area { flex-grow: 1; } }
+
+        /* Bottom Dashboard Styling */
+        #bottom-dashboard { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 100; width: auto; background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(50, 50, 50, 0.6); border-radius: 9999px; padding: 0.4rem 0.6rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem; box-shadow: 0 5px 20px rgba(0,0,0,0.4); opacity: 0; transform: translateX(-50%) translateY(120%); transition: opacity 0.4s ease-out, transform 0.4s ease-out; pointer-events: none; }
+        #bottom-dashboard.visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        @media (min-width: 640px) { #bottom-dashboard { gap: 0.65rem; } }
+        .dashboard-section { display: flex; align-items: center; gap: inherit; }
+        .dashboard-button { width: 2.25rem; height: 2.25rem; font-size: 1rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: normal; line-height: 1; color: #a0a0a0; background-color: transparent; border: none; box-shadow: none; transition: all 0.2s ease-out; cursor: pointer; text-decoration: none; opacity: 0.8; }
+        @media (min-width: 768px) { .dashboard-button { width: 2.5rem; height: 2.5rem; font-size: 1.1rem; } #home-btn { width: 3rem; height: 3rem; font-size: 1.3rem; margin: 0 0.25rem; } } /* Adjusted home-btn size and margin */
+        .dashboard-button:hover { background-color: rgba(55, 55, 55, 0.6); color: #f0f0f0; transform: scale(1.1); opacity: 1; }
+        .dashboard-button:active { background-color: rgba(20, 184, 166, 0.2); }
+        #home-btn { background: linear-gradient(145deg, #14b8a6, #0d9488); color: white; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4); opacity: 1; } /* Removed margin from here */
+        #home-btn:hover { background: linear-gradient(145deg, #0d9488, #047857); box-shadow: 0 6px 18px rgba(13, 148, 136, 0.5); transform: scale(1.05); }
+        #translate-btn { font-weight: 600; font-size: 0.75rem; color: #a0a0a0; width: 2.25rem; height: 2.25rem; }
+        @media (min-width: 768px) { #translate-btn { font-size: 0.85rem; width: 2.5rem; height: 2.5rem; } }
+        #translate-btn:hover { color: #f0f0f0; }
+        #fullscreen-btn i { font-size: 0.9rem; } /* Adjusted selector */
+        @media (min-width: 768px) { #fullscreen-btn i { font-size: 1rem; } } /* Adjusted selector */
+
+        /* Auth Status Styling (Hidden) */
+        #auth-status { display: none; }
+
+        /* Summary Area Wrapper */
+        .summary-wrapper { position: relative; margin-top: 1.5rem; }
+
+        /* Icon size */
+        .icon { width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -0.15em; margin-right: 0.4rem; }
+
+        /* Video Section Styling */
+        .video-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(75, 85, 99, 0.4); }
+        .main-video-player { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #111827; border-radius: 0.75rem; margin-bottom: 1rem; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); }
+        .main-video-player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 0.75rem; }
+        .video-list-container { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+        .video-list-item { position: relative; background-color: rgba(55, 65, 81, 0.3); border-radius: 0.375rem; padding: 0.4rem; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; border: 1px solid transparent; width: calc(50% - 0.375rem); text-align: center; overflow: hidden; }
+        @media (min-width: 640px) { .video-list-item { width: calc(33.33% - 0.5rem); } }
+        @media (min-width: 1024px) { .video-list-item { width: calc(25% - 0.5625rem); } }
+        .video-list-item:hover { background-color: rgba(75, 85, 99, 0.5); transform: translateY(-2px); }
+        .video-list-item.active-video { border-color: #14b8a6; background-color: rgba(20, 184, 166, 0.1); } /* Teal */
+        .video-thumbnail { width: 100%; aspect-ratio: 16 / 9; background-color: #374151; border-radius: 0.25rem; margin-bottom: 0.3rem; object-fit: cover; display: block; }
+        .video-title { font-size: 0.75rem; color: #d1d5db; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-top: 0.2rem; }
+        .remove-video-btn { position: absolute; top: 0.2rem; right: 0.2rem; background-color: rgba(239, 68, 68, 0.7); color: white; border: none; border-radius: 50%; width: 1.1rem; height: 1.1rem; font-size: 0.6rem; cursor: pointer; display: none; align-items: center; justify-content: center; line-height: 1; transition: background-color 0.2s ease; z-index: 12; }
+        .remove-video-btn:hover { background-color: rgba(220, 38, 38, 0.9); }
+        body.admin-mode .remove-video-btn { display: flex; }
+
+        /* Action Buttons - Teal Accent */
+        .action-button { flex-grow: 1; text-align: center; justify-content: center; transition: all 0.25s ease-out; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); padding: 0.6rem 1rem; color: #e5e7eb; border-radius: 0.375rem; font-weight: 500; font-size: 0.85rem; border: 1px solid transparent; background: rgba(55, 65, 81, 0.6); }
+        .action-button:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); background: rgba(75, 85, 99, 0.8); }
+        .action-button:disabled { opacity: 0.5; cursor: not-allowed; background: rgba(55, 65, 81, 0.4); }
+        a.action-button { background: #0d9488; border: none; color: white; }
+        a.action-button:hover { background: #0f766e; }
+         button.quiz-button { background: #f59e0b; border: none; color: white; } /* Amber */
+         button.quiz-button:hover { background: #d97706; }
+        button.edit-save-btn { background: #0d9488; border: none; color: white; }
+        button.edit-save-btn:hover { background: #0f766e; }
+        button.edit-save-btn[data-key*="save_btn"] { background: #059669; }
+        button.edit-save-btn[data-key*="save_btn"]:hover { background: #047857; }
+        button.edit-video-btn { background: #0e7490; border: none; color: white; }
+        button.edit-video-btn:hover { background: #155e75; }
+        button.edit-pdf-btn { background: #0369a1; border: none; color: white; }
+        button.edit-pdf-btn:hover { background: #075985; }
+        button.add-video-btn { background: #059669; border: none; color: white; }
+        button.add-video-btn:hover { background: #047857; }
+        button.edit-quiz-btn { background: #d97706; border: none; color: white; } /* Darker Amber */
+        button.edit-quiz-btn:hover { background: #b45309; }
+
+
+        /* Action Buttons Container */
+        .action-buttons-container { margin-top: 1.5rem; position: relative; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+
+        /* Admin Edit Toggle Button */
+        .admin-edit-toggle { width: 2.25rem; height: 2.25rem; border-radius: 50%; background-color: rgba(75, 85, 99, 0.7); border: 1px solid rgba(107, 114, 128, 0.5); cursor: pointer; z-index: 10; display: none; align-items: center; justify-content: center; color: #d1d5db; transition: all 0.2s ease; flex-shrink: 0; margin-left: auto; }
+        .admin-edit-toggle:hover { background-color: rgba(55, 65, 81, 0.9); transform: scale(1.1); color: white; }
+        body.admin-mode .admin-edit-toggle { display: inline-flex; }
+
+        /* Admin Actions Menu */
+        .admin-actions-menu { position: absolute; top: -1rem; right: 0.5rem; background-color: rgba(31, 41, 55, 0.98); backdrop-filter: blur(8px); border-radius: 0.5rem; padding: 0.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 11; display: none; flex-direction: column; gap: 0.5rem; width: max-content; opacity: 0; transform: translateY(-10px) scale(0.95); transition: opacity 0.2s ease-out, transform 0.2s ease-out; }
+        .admin-actions-menu.active { display: flex; opacity: 1; transform: translateY(0) scale(1); }
+        .admin-actions-menu .action-button { width: 100%; flex-grow: 0; font-size: 0.8rem; padding: 0.5rem 0.8rem; background: rgba(55, 65, 81, 0.6); color: #e5e7eb; }
+        .admin-actions-menu .action-button:hover { background: rgba(75, 85, 99, 0.8); }
+        .admin-actions-menu .action-button svg, .admin-actions-menu .action-button i { width: 1rem; height: 1rem; margin-right: 0.3rem; }
+
+        /* Content Display Area */
+        #content-display-area { min-height: 300px; background: rgba(31, 41, 55, 0.4); border-radius: 1rem; border: 1px solid rgba(75, 85, 99, 0.3); }
+
+        /* Summary Content & Editor */
+        .summary-content { padding: 1rem 0; border: none; border-radius: 0; min-height: 120px; background: transparent; transition: border 0.3s ease, background-color 0.3s ease; line-height: 1.7; position: relative; margin-top: 1rem; color: #ffffff; } /* White text */
+        .summary-content[contenteditable="true"] { border: 1px solid #4b5563; min-height: 150px; background-color: #1f2937; color: #ffffff; outline: none; border-radius: 0.5rem; padding: 1rem; } /* White text */
+        .summary-content[contenteditable="true"]:focus { border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.3); }
+        .editor-toolbar { display: none; background-color: #1f2937; padding: 0.6rem; border-radius: 0.5rem 0.5rem 0 0; border: 1px solid #4b5563; border-bottom: none; margin-bottom: 0px; flex-wrap: wrap; gap: 0.4rem; }
+        .editor-toolbar.visible { display: flex; }
+        .editor-toolbar button, .editor-toolbar input[type="color"] { background-color: #4b5563; color: #e5e7eb; border: 1px solid #6b7280; padding: 0.35rem 0.65rem; border-radius: 0.375rem; cursor: pointer; font-size: 0.85rem; transition: background-color 0.2s ease, transform 0.1s ease; }
+        .editor-toolbar button:hover { background-color: #525c6e; }
+        .editor-toolbar button:active { transform: scale(0.95); }
+        .editor-toolbar input[type="color"] { padding: 0.1rem 0.2rem; height: 1.8rem; width: 2.5rem; }
+        .editor-toolbar button svg { width: 1em; height: 1em; vertical-align: -0.125em; display: inline-block; }
+        .summary-content ul, .summary-content ol { list-style-position: inside; padding-left: 1rem; margin: 0.75rem 0; color: #ffffff; } /* White text */
+        .summary-content li { margin-bottom: 0.4rem; line-height: 1.6; }
+        .summary-content p { margin-bottom: 0.75rem; }
+
+        /* Footer Styles */
+        .app-footer { padding: 1.5rem 1rem; text-align: center; font-size: 0.8rem; color: #6b7280; width: 100%; }
+        .app-footer a { color: #9ca3af; text-decoration: none; transition: color 0.2s ease; }
+        .app-footer a:hover { color: #5eead4; text-decoration: none; }
+
+        /* Helper class to hide elements */
+        .hidden { display: none; }
+
+        /* Admin Login Modal/Form Styling */
+        .admin-login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 150;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .admin-login-form {
+            background: #1f2937;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            color: #e5e7eb;
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .admin-login-form h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .admin-login-form input[type="email"],
+        .admin-login-form input[type="password"] {
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #4b5563;
+            background-color: #374151;
+            color: #e5e7eb;
+            font-size: 1rem;
+        }
+        .admin-login-form input[type="email"]:focus,
+        .admin-login-form input[type="password"]:focus {
+            outline: none;
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.3);
+        }
+        .admin-login-form button {
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            background-color: #14b8a6;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .admin-login-form button:hover {
+            background-color: #0d9488;
+        }
+        .admin-login-form .error-message {
+            color: #f87171; /* Red */
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Admin Dashboard Button (Gear Icon) */
+        #admin-dashboard-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.1rem;
+            border-radius: 50%;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            font-weight: normal;
+            line-height: 1;
+            color: #a0a0a0;
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            transition: all 0.2s ease-out;
+            cursor: pointer;
+            text-decoration: none;
+            opacity: 0.8;
+        }
+         body.admin-url-mode #admin-dashboard-btn { display: flex; } /* Show only when ?mode=admin is in URL */
+         #admin-dashboard-btn:hover { background-color: rgba(55, 55, 55, 0.6); color: #f0f0f0; transform: scale(1.1); opacity: 1; }
+
+
+        /* Admin Logout Button */
+        #admin-logout-btn {
+             width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.1rem;
+            border-radius: 50%;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            font-weight: normal;
+            line-height: 1;
+            color: #f87171; /* Red */
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            transition: all 0.2s ease-out;
+            cursor: pointer;
+            text-decoration: none;
+            opacity: 0.8;
+        }
+         body.admin-mode #admin-logout-btn { display: flex; } /* Show when in admin mode (authenticated) */
+
+    </style>
+</head>
+<body class="theme-dark min-h-screen p-4 md:p-8">
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="main-container">
+
+        <header class="mb-8 text-center border-b border-gray-700/50 pb-6 pt-4">
+            <h1 id="main-title" data-key="main_title" class="text-3xl md:text-4xl font-bold text-white mb-2">Unit 4: Fundamental of Digital Circuits</h1>
+            <p id="main-subtitle" data-key="main_subtitle" class="text-gray-400 mt-2 text-base md:text-lg">Exploring the basic building blocks of digital systems and logic gates.</p>
+        </header>
+
+        <div class="flex flex-col md:flex-row md:gap-6 lg:gap-8">
+
+            <aside id="topic-list-container" class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0 mb-8 md:mb-0 pr-4 md:pr-0">
+                 <h2 class="text-xl font-semibold text-white mb-4 hidden md:block">Topics (Unit 4)</h2>
+                 <nav id="topic-list" class="space-y-1">
+                    <button data-target="topic-4-1" data-key="btn_4_1" class="topic-list-item w-full text-left">
+                        4.1 Logic Gates & Truth Tables
+                    </button>
+                    <button data-target="topic-4-2" data-key="btn_4_2" class="topic-list-item w-full text-left">
+                        4.2 Boolean Algebra & Karnaugh Map
+                    </button>
+                    <button data-target="topic-4-3" data-key="btn_4_3" class="topic-list-item w-full text-left">
+                        4.3 Digital Circuit Design
+                    </button>
+                    <button data-target="topic-4-4" data-key="btn_4_4" class="topic-list-item w-full text-left">
+                        4.4 Combinational & Sequential Circuits
+                    </button>
+                    </nav>
+            </aside>
+
+            <main id="content-display-area" class="w-full md:flex-grow p-6 bg-gray-800/40 rounded-xl border border-gray-700/30 shadow-lg">
+                <div id="topic-4-1" class="content-section">
+                    <h2 data-key="title_4_1" class="text-2xl font-semibold text-white mb-5">4.1 Logic Gates & Truth Tables</h2>
+                    <div class="video-section">
+                        <h3 data-key="video_title_4_1" class="text-lg font-semibold text-gray-300 mb-4">Watch Video</h3>
+                        <div class="main-video-player">
+                             <iframe id="main-video-iframe-4-1" src="https://www.youtube.com/embed/0" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                        <div id="video-list-container-4-1" class="video-list-container"></div>
+                    </div>
+                    <div class="summary-wrapper">
+                        <div id="toolbar-topic-4-1-summary" class="editor-toolbar"> <button data-command="bold" title="Bold"><b>B</b></button> <button data-command="italic" title="Italic"><i>I</i></button> <button data-command="underline" title="Underline"><u>U</u></button> <button data-command="justifyLeft" title="Align Left">L</button> <button data-command="justifyCenter" title="Align Center">C</button> <button data-command="justifyRight" title="Align Right">R</button> <button data-command="insertUnorderedList" title="Bullet List">• List</button> <button data-command="insertOrderedList" title="Numbered List">1. List</button> <button data-command="createLink" title="Link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757a4.5 4.5 0 016.364 0l1.757 1.757a.75.75 0 11-1.06 1.06l-1.757-1.757a3 3 0 00-4.243 0l-1.757 1.757a3 3 0 104.243 4.243l4.5-4.5a3 3 0 00-1.242-5.244zM12.75 8.688a.75.75 0 00-1.06 1.06l1.757 1.757a3 3 0 010 4.243l-1.757 1.757a.75.75 0 101.06 1.06l1.757-1.757a4.5 4.5 0 000-6.364l-1.757-1.757z" /></svg></button> <input type="color" data-command="foreColor" title="Text Color"> </div>
+                        <div id="topic-4-1-summary" class="summary-content prose prose-invert max-w-none text-gray-300"></div>
+                    </div>
+                    <div class="action-buttons-container">
+                         <a href="#" target="_blank" data-key="pdf_link_text_4_1" id="pdf-link-4-1" class="action-button inline-flex items-center"> ... </a>
+                         <button class="action-button inline-flex items-center quiz-button" data-key="quiz_link_text_4_1" id="quiz-link-4-1">Take Quiz</button>
+                         <button class="admin-edit-toggle admin-button" data-menu-target="admin-actions-4-1" title="Admin Actions"><i class="fas fa-cog"></i></button>
+                         <div id="admin-actions-4-1" class="admin-actions-menu">
+                             <button class="action-button admin-button edit-save-btn" data-key="edit_btn_4_1" data-summary-id="topic-4-1-summary"><i class="fas fa-edit icon"></i> Edit Summary</button>
+                             <button class="action-button admin-button add-video-btn" data-key="add_video_btn_4_1" data-topic-id="topic-4-1"><i class="fas fa-plus-circle icon"></i> Add Video</button>
+                             <button class="action-button admin-button edit-video-btn" data-key="edit_video_btn_4-1" data-target-iframe="main-video-iframe-4-1"><i class="fas fa-video icon"></i> Set Main Video</button>
+                             <button class="action-button admin-button edit-pdf-btn" data-key="edit_pdf_btn_4_1" data-target-pdf="pdf-link-4-1"><i class="fas fa-file-pdf icon"></i> Set PDF Link</button>
+                             <button class="action-button admin-button edit-quiz-btn" data-key="edit_quiz_btn_4_1" data-target-quiz="quiz-link-4-1"><i class="fas fa-question-circle icon"></i> Set Quiz Link</button>
+                         </div>
+                    </div>
+                   </div>
+                <div id="topic-4-2" class="content-section">
+                    <h2 data-key="title_4_2" class="text-2xl font-semibold text-white mb-5">4.2 Boolean Algebra & Karnaugh Map</h2>
+                    <div class="video-section">
+                        <h3 data-key="video_title_4_2" class="text-lg font-semibold text-gray-300 mb-4">Watch Video</h3>
+                        <div class="main-video-player">
+                             <iframe id="main-video-iframe-4-2" src="https://www.youtube.com/embed/0" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                        <div id="video-list-container-4-2" class="video-list-container"></div>
+                    </div>
+                    <div class="summary-wrapper">
+                        <div id="toolbar-topic-4-2-summary" class="editor-toolbar"> <button data-command="bold" title="Bold"><b>B</b></button> <button data-command="italic" title="Italic"><i>I</i></button> <button data-command="underline" title="Underline"><u>U</u></button> <button data-command="justifyLeft" title="Align Left">L</button> <button data-command="justifyCenter" title="Align Center">C</button> <button data-command="justifyRight" title="Align Right">R</button> <button data-command="insertUnorderedList" title="Bullet List">• List</button> <button data-command="insertOrderedList" title="Numbered List">1. List</button> <button data-command="createLink" title="Link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757a4.5 4.5 0 016.364 0l1.757 1.757a.75.75 0 11-1.06 1.06l-1.757-1.757a3 3 0 00-4.243 0l-1.757 1.757a3 3 0 104.243 4.243l4.5-4.5a3 3 0 00-1.242-5.244zM12.75 8.688a.75.75 0 00-1.06 1.06l1.757 1.757a3 3 0 010 4.243l-1.757 1.757a.75.75 0 101.06 1.06l1.757-1.757a4.5 4.5 0 000-6.364l-1.757-1.757z" /></svg></button> <input type="color" data-command="foreColor" title="Text Color"> </div>
+                        <div id="topic-4-2-summary" class="summary-content prose prose-invert max-w-none text-gray-300"></div>
+                    </div>
+                    <div class="action-buttons-container">
+                         <a href="#" target="_blank" data-key="pdf_link_text_4_2" id="pdf-link-4-2" class="action-button inline-flex items-center"> ... </a>
+                         <button class="action-button inline-flex items-center quiz-button" data-key="quiz_link_text_4_2" id="quiz-link-4-2">Take Quiz</button>
+                         <button class="admin-edit-toggle admin-button" data-menu-target="admin-actions-4-2" title="Admin Actions"><i class="fas fa-cog"></i></button>
+                         <div id="admin-actions-4-2" class="admin-actions-menu">
+                             <button class="action-button admin-button edit-save-btn" data-key="edit_btn_4_2" data-summary-id="topic-4-2-summary"><i class="fas fa-edit icon"></i> Edit Summary</button>
+                             <button class="action-button admin-button add-video-btn" data-key="add_video_btn_4_2" data-topic-id="topic-4-2"><i class="fas fa-plus-circle icon"></i> Add Video</button>
+                             <button class="action-button admin-button edit-video-btn" data-key="edit_video_btn_4-2" data-target-iframe="main-video-iframe-4-2"><i class="fas fa-video icon"></i> Set Main Video</button>
+                             <button class="action-button admin-button edit-pdf-btn" data-key="edit_pdf_btn_4_2" data-target-pdf="pdf-link-4-2"><i class="fas fa-file-pdf icon"></i> Set PDF Link</button>
+                             <button class="action-button admin-button edit-quiz-btn" data-key="edit_quiz_btn_4_2" data-target-quiz="quiz-link-4-2"><i class="fas fa-question-circle icon"></i> Set Quiz Link</button>
+                         </div>
+                    </div>
+                   </div>
+                   <div id="topic-4-3" class="content-section">
+                    <h2 data-key="title_4_3" class="text-2xl font-semibold text-white mb-5">4.3 Digital Circuit Design</h2>
+                    <div class="video-section">
+                        <h3 data-key="video_title_4_3" class="text-lg font-semibold text-gray-300 mb-4">Watch Video</h3>
+                        <div class="main-video-player">
+                             <iframe id="main-video-iframe-4-3" src="https://www.youtube.com/embed/0" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                        <div id="video-list-container-4-3" class="video-list-container"></div>
+                    </div>
+                    <div class="summary-wrapper">
+                        <div id="toolbar-topic-4-3-summary" class="editor-toolbar"> <button data-command="bold" title="Bold"><b>B</b></button> <button data-command="italic" title="Italic"><i>I</i></button> <button data-command="underline" title="Underline"><u>U</u></button> <button data-command="justifyLeft" title="Align Left">L</button> <button data-command="justifyCenter" title="Align Center">C</button> <button data-command="justifyRight" title="Align Right">R</button> <button data-command="insertUnorderedList" title="Bullet List">• List</button> <button data-command="insertOrderedList" title="Numbered List">1. List</button> <button data-command="createLink" title="Link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757a4.5 4.5 0 016.364 0l1.757 1.757a.75.75 0 11-1.06 1.06l-1.757-1.757a3 3 0 00-4.243 0l-1.757 1.757a3 3 0 104.243 4.243l4.5-4.5a3 3 0 00-1.242-5.244zM12.75 8.688a.75.75 0 00-1.06 1.06l1.757 1.757a3 3 0 010 4.243l-1.757 1.757a.75.75 0 101.06 1.06l1.757-1.757a4.5 4.5 0 000-6.364l-1.757-1.757z" /></svg></button> <input type="color" data-command="foreColor" title="Text Color"> </div>
+                        <div id="topic-4-3-summary" class="summary-content prose prose-invert max-w-none text-gray-300"></div>
+                    </div>
+                    <div class="action-buttons-container">
+                         <a href="#" target="_blank" data-key="pdf_link_text_4_3" id="pdf-link-4-3" class="action-button inline-flex items-center"> ... </a>
+                         <button class="action-button inline-flex items-center quiz-button" data-key="quiz_link_text_4_3" id="quiz-link-4-3">Take Quiz</button>
+                         <button class="admin-edit-toggle admin-button" data-menu-target="admin-actions-4-3" title="Admin Actions"><i class="fas fa-cog"></i></button>
+                         <div id="admin-actions-4-3" class="admin-actions-menu">
+                             <button class="action-button admin-button edit-save-btn" data-key="edit_btn_4_3" data-summary-id="topic-4-3-summary"><i class="fas fa-edit icon"></i> Edit Summary</button>
+                             <button class="action-button admin-button add-video-btn" data-key="add_video_btn_4_3" data-topic-id="topic-4-3"><i class="fas fa-plus-circle icon"></i> Add Video</button>
+                             <button class="action-button admin-button edit-video-btn" data-key="edit_video_btn_4-3" data-target-iframe="main-video-iframe-4-3"><i class="fas fa-video icon"></i> Set Main Video</button>
+                             <button class="action-button admin-button edit-pdf-btn" data-key="edit_pdf_btn_4_3" data-target-pdf="pdf-link-4-3"><i class="fas fa-file-pdf icon"></i> Set PDF Link</button>
+                             <button class="action-button admin-button edit-quiz-btn" data-key="edit_quiz_btn_4_3" data-target-quiz="quiz-link-4-3"><i class="fas fa-question-circle icon"></i> Set Quiz Link</button>
+                         </div>
+                    </div>
+                   </div>
+                <div id="topic-4-4" class="content-section">
+                    <h2 data-key="title_4_4" class="text-2xl font-semibold text-white mb-5">4.4 Combinational & Sequential Circuits</h2>
+                    <div class="video-section">
+                        <h3 data-key="video_title_4_4" class="text-lg font-semibold text-gray-300 mb-4">Watch Video</h3>
+                        <div class="main-video-player">
+                             <iframe id="main-video-iframe-4-4" src="https://www.youtube.com/embed/0" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                        <div id="video-list-container-4-4" class="video-list-container"></div>
+                    </div>
+                    <div class="summary-wrapper">
+                        <div id="toolbar-topic-4-4-summary" class="editor-toolbar"> <button data-command="bold" title="Bold"><b>B</b></button> <button data-command="italic" title="Italic"><i>I</i></button> <button data-command="underline" title="Underline"><u>U</u></button> <button data-command="justifyLeft" title="Align Left">L</button> <button data-command="justifyCenter" title="Align Center">C</button> <button data-command="justifyRight" title="Align Right">R</button> <button data-command="insertUnorderedList" title="Bullet List">• List</button> <button data-command="insertOrderedList" title="Numbered List">1. List</button> <button data-command="createLink" title="Link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757a4.5 4.5 0 016.364 0l1.757 1.757a.75.75 0 11-1.06 1.06l-1.757-1.757a3 3 0 00-4.243 0l-1.757 1.757a3 3 0 104.243 4.243l4.5-4.5a3 3 0 00-1.242-5.244zM12.75 8.688a.75.75 0 00-1.06 1.06l1.757 1.757a3 3 0 010 4.243l-1.757 1.757a.75.75 0 101.06 1.06l1.757-1.757a4.5 4.5 0 000-6.364l-1.757-1.757z" /></svg></button> <input type="color" data-command="foreColor" title="Text Color"> </div>
+                        <div id="topic-4-4-summary" class="summary-content prose prose-invert max-w-none text-gray-300"></div>
+                    </div>
+                    <div class="action-buttons-container">
+                         <a href="#" target="_blank" data-key="pdf_link_text_4_4" id="pdf-link-4-4" class="action-button inline-flex items-center"> ... </a>
+                         <button class="action-button inline-flex items-center quiz-button" data-key="quiz_link_text_4_4" id="quiz-link-4-4">Take Quiz</button>
+                         <button class="admin-edit-toggle admin-button" data-menu-target="admin-actions-4-4" title="Admin Actions"><i class="fas fa-cog"></i></button>
+                         <div id="admin-actions-4-4" class="admin-actions-menu">
+                             <button class="action-button admin-button edit-save-btn" data-key="edit_btn_4_4" data-summary-id="topic-4-4-summary"><i class="fas fa-edit icon"></i> Edit Summary</button>
+                             <button class="action-button admin-button add-video-btn" data-key="add_video_btn_4_4" data-topic-id="topic-4-4"><i class="fas fa-plus-circle icon"></i> Add Video</button>
+                             <button class="action-button admin-button edit-video-btn" data-key="edit_video_btn_4-4" data-target-iframe="main-video-iframe-4-4"><i class="fas fa-video icon"></i> Set Main Video</button>
+                             <button class="action-button admin-button edit-pdf-btn" data-key="edit_pdf_btn_4_4" data-target-pdf="pdf-link-4-4"><i class="fas fa-file-pdf icon"></i> Set PDF Link</button>
+                             <button class="action-button admin-button edit-quiz-btn" data-key="edit_quiz_btn_4_4" data-target-quiz="quiz-link-4-4"><i class="fas fa-question-circle icon"></i> Set Quiz Link</button>
+                         </div>
+                    </div>
+                   </div>
+                   <div id="placeholder-content" class="text-center text-gray-500 pt-10">
+                     <p data-key="placeholder_text">Select a topic from the list to view its content.</p>
+                   </div>
+            </main>
+
+        </div>
+
+        <footer class="app-footer">
+            <a href="https://t.me/MR_LXN" target="_blank" rel="noopener noreferrer">
+                 </> Developed by Lakshan 💻
+            </a>
+        </footer>
+
+    </div>
+
+    <footer id="bottom-dashboard">
+        <div class="dashboard-section">
+            <button id="translate-btn" data-lang="si" class="dashboard-button" aria-label="Translate"> SI </button>
+            <button id="fullscreen-btn" class="dashboard-button" aria-label="Toggle Fullscreen">
+                <i id="fullscreen-enter-icon" class="fas fa-expand"></i>
+                <i id="fullscreen-exit-icon" class="fas fa-compress hidden"></i>
+            </button>
+            <a href="index.html" id="home-btn" class="dashboard-button" aria-label="Home"> 🏠 </a>
+            <button id="admin-dashboard-btn" class="dashboard-button" aria-label="Admin Actions">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button id="admin-logout-btn" class="dashboard-button" aria-label="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </footer>
+
+    <div id="admin-login-overlay" class="admin-login-overlay hidden">
+        <div class="admin-login-form">
+            <h3>Admin Login</h3>
+            <input type="email" id="admin-email" placeholder="Email">
+            <input type="password" id="admin-password" placeholder="Password">
+            <button id="admin-login-btn">Login</button>
+            <p id="login-error-message" class="error-message"></p>
+        </div>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.0/firebase-auth.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script>
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+           apiKey: "AIzaSyAJg4Pu1qEsZTg2QRiGZQgU4z-2lw8-Wrk",
+           authDomain: "deeplearnsl.firebaseapp.com",
+           databaseURL: "https://deeplearnsl-default-rtdb.firebaseio.com",
+           projectId: "deeplearnsl",
+           storageBucket: "deeplearnsl.appspot.com",
+           messagingSenderId: "372545200514",
+           appId: "1:372545200514:web:29fe509e65ff575b2c2f9b"
+        };
+
+        // --- Initialize Firebase ---
+        let database;
+        let auth;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            } else {
+                firebase.app();
+            }
+            database = firebase.database();
+            auth = firebase.auth(); // Initialize Firebase Auth
+            console.log("Firebase initialized successfully.");
+        } catch (e) {
+            console.error("Error initializing Firebase:", e);
+            alert("Could not connect to the database. Editing features may not work.");
+        }
+
+        // --- Translation Data for Unit 4 ---
+        const translations = {
+             en: {
+                 main_title: "Unit 4: Fundamental of Digital Circuits", main_subtitle: "Exploring the basic building blocks of digital systems and logic gates.",
+                 btn_4_1: "4.1 Logic Gates & Truth Tables", btn_4_2: "4.2 Boolean Algebra & Karnaugh Map", btn_4_3: "4.3 Digital Circuit Design", btn_4_4: "4.4 Combinational & Sequential Circuits",
+                 title_4_1: "4.1 Logic Gates & Truth Tables", video_title_4_1: "Watch Video", pdf_link_text_4_1: "Download PDF", quiz_link_text_4_1: "Take Quiz", edit_btn_4_1: "Edit Summary", save_btn_4_1: "Save Summary", edit_video_btn_4_1: "Set Main Video", edit_pdf_btn_4_1: "Set PDF Link", add_video_btn_4_1: "Add Video", edit_quiz_btn_4_1: "Set Quiz Link",
+                 "topic-4-1-summary": `<p>Introduction to basic logic gates (AND, OR, NOT, NAND, NOR, XOR, XNOR), their symbols, and truth tables. Includes universal gates.</p>`,
+                 title_4_2: "4.2 Boolean Algebra & Karnaugh Map", video_title_4_2: "Watch Video", pdf_link_text_4_2: "Download PDF", quiz_link_text_4_2: "Take Quiz", edit_btn_4_2: "Edit Summary", save_btn_4_2: "Save Summary", edit_video_btn_4_2: "Set Main Video", edit_pdf_btn_4_2: "Set PDF Link", add_video_btn_4_2: "Add Video", edit_quiz_btn_4_2: "Set Quiz Link",
+                 "topic-4-2-summary": `<p>Simplifying logic expressions using Boolean algebra laws (Postulates, Laws/Theorems like Commutative, Associative, Distributive, Identity, Redundancy, De Morgan's) and Karnaugh maps.</p>`,
+                 title_4_3: "4.3 Digital Circuit Design", video_title_4_3: "Watch Video", pdf_link_text_4_3: "Download PDF", quiz_link_text_4_3: "Take Quiz", edit_btn_4_3: "Edit Summary", save_btn_4_3: "Save Summary", edit_video_btn_4_3: "Set Main Video", edit_pdf_btn_4_3: "Set PDF Link", add_video_btn_4_3: "Add Video", edit_quiz_btn_4_3: "Set Quiz Link",
+                 "topic-4-3-summary": `<p>Designing simple digital circuits based on logic expressions and truth tables. Identifying real-world applications.</p>`,
+                 title_4_4: "4.4 Combinational & Sequential Circuits", video_title_4_4: "Watch Video", pdf_link_text_4_4: "Download PDF", quiz_link_text_4_4: "Take Quiz", edit_btn_4_4: "Edit Summary", save_btn_4_4: "Save Summary", edit_video_btn_4_4: "Set Main Video", edit_pdf_btn_4_4: "Set PDF Link", add_video_btn_4_4: "Add Video", edit_quiz_btn_4_4: "Set Quiz Link",
+                 "topic-4-4-summary": `<p>Exploring combinational logic circuits (Half adder, Full adder) used in CPU and sequential circuits (Flip-flops) used in physical memory.</p>`,
+                 placeholder_text: "Select a topic from the list to view its content."
+             },
+             si: { /* Sinhala translations - Placeholder */
+                 main_title: "ඒකකය 4: ඩිජිටල් පරිපථවල මූලික කරුණු", main_subtitle: "ඩිජිටල් පද්ධතිවල සහ තර්ක ද්වාරවල මූලික ගොඩනැඟිලි කොටස් ගවේෂණය කිරීම.",
+                 btn_4_1: "4.1 තර්ක ද්වාර සහ සත්‍ය වගු", btn_4_2: "4.2 බූලියන් වීජ ගණිතය සහ කාර්නෝ සිතියම", btn_4_3: "4.3 ඩිජිටල් පරිපථ සැලසුම් කිරීම", btn_4_4: "4.4 සංයෝජන සහ අනුක්‍රමික පරිපථ",
+                 title_4_1: "4.1 තර්ක ද්වාර සහ සත්‍ය වගු", video_title_4_1: "වීඩියෝව නරඹන්න", pdf_link_text_4_1: "සාරාංශ PDF බාගන්න", quiz_link_text_4_1: "ප්‍රශ්නාවලියට සහභාගී වන්න", edit_btn_4_1: "සාරාංශය සංස්කරණය කරන්න", save_btn_4_1: "සාරාංශය සුරකින්න", edit_video_btn_4_1: "ප්‍රධාන වීඩියෝ සබැඳිය සකසන්න", edit_pdf_btn_4_1: "PDF සබැඳිය සකසන්න", add_video_btn_4_1: "වීඩියෝ එක් කරන්න", edit_quiz_btn_4_1: "ප්‍රශ්නාවලිය සබැඳිය සකසන්න",
+                 "topic-4-1-summary": `<p>මූලික තර්ක ද්වාර (AND, OR, NOT, NAND, NOR, XOR, XNOR), ඒවායේ සංකේත සහ සත්‍ය වගු පිළිබඳ හැඳින්වීම. විශ්ව ද්වාර ඇතුළත් වේ.</p>`,
+                 title_4_2: "4.2 බූලියන් වීජ ගණිතය සහ කාර්නෝ සිතියම", video_title_4_2: "වීඩියෝව නරඹන්න", pdf_link_text_4_2: "සාරාංශ PDF බාගන්න", quiz_link_text_4_2: "ප්‍රශ්නාවලියට සහභාගී වන්න", edit_btn_4_2: "සාරාංශය සංස්කරණය කරන්න", save_btn_4_2: "සාරාංශය සුරකින්න", edit_video_btn_4_2: "ප්‍රධාන වීඩියෝ සබැඳිය සකසන්න", edit_pdf_btn_4_2: "PDF සබැඳිය සකසන්න", add_video_btn_4_2: "වීඩියෝ එක් කරන්න", edit_quiz_btn_4_2: "ප්‍රශ්නාවලිය සබැඳිය සකසන්න",
+                 "topic-4-2-summary": `<p>බූලියන් වීජ ගණිත නීති (ප්‍රතිපාදන, විධි/ප්‍රමේයයන් වන විපර්යාස, ආශ්‍රිත, බෙදාහැරීමේ, අනන්‍යතා, පුනරාවර්තන, ඩි මෝර්ගන්) සහ කාර්නෝ සිතියම් භාවිතයෙන් තර්ක ප්‍රකාශන සරල කිරීම.</p>`,
+                 title_4_3: "4.3 ඩිජිටල් පරිපථ සැලසුම් කිරීම", video_title_4_3: "වීඩියෝව නරඹන්න", pdf_link_text_4_3: "සාරාංශ PDF බාගන්න", quiz_link_text_4_3: "ප්‍රශ්නාවලියට සහභාගී වන්න", edit_btn_4_3: "සාරාංශය සංස්කරණය කරන්න", save_btn_4_3: "සාරාංශය සුරකින්න", edit_video_btn_4_3: "ප්‍රධාන වීඩියෝ සබැඳිය සකසන්න", edit_pdf_btn_4_3: "PDF සබැඳිය සකසන්න", add_video_btn_4_3: "වීඩියෝ එක් කරන්න", edit_quiz_btn_4_3: "ප්‍රශ්නාවලිය සබැඳිය සකසන්න",
+                 "topic-4-3-summary": `<p>තර්ක ප්‍රකාශන සහ සත්‍ය වගු මත පදනම්ව සරල ඩිජිටල් පරිපථ සැලසුම් කිරීම. සැබෑ ලෝක යෙදුම් හඳුනා ගැනීම.</p>`,
+                 title_4_4: "4.4 සංයෝජන සහ අනුක්‍රමික පරිපථ", video_title_4_4: "වීඩියෝව නරඹන්න", pdf_link_text_4_4: "සාරාංශ PDF බාගන්න", quiz_link_text_4_4: "ප්‍රශ්නාවලියට සහභාගී වන්න", edit_btn_4_4: "සාරාංශය සංස්කරණය කරන්න", save_btn_4_4: "සාරාංශය සුරකින්න", edit_video_btn_4_4: "ප්‍රධාන වීඩියෝ සබැඳිය සකසන්න", edit_pdf_btn_4_4: "PDF සබැඳිය සකසන්න", add_video_btn_4_4: "Add Video", edit_quiz_btn_4_4: "ප්‍රශ්නාවලිය සබැඳිය සකසන්න",
+                 "topic-4-4-summary": `<p>CPU හි භාවිතා වන සංයෝජන තර්ක පරිපථ (අර්ධ එකතු කරන්නා, පූර්ණ එකතු කරන්නා) සහ භෞතික මතකයේ භාවිතා වන අනුක්‍රමික පරිපථ (ෆ්ලිප්-ෆ්ලොප්) ගවේෂණය කිරීම.</p>`,
+                 placeholder_text: "Select a topic from the list to view its content."
+             }
+        };
+
+
+        // --- UI Elements ---
+        const topicListContainer = document.getElementById('topic-list');
+        const contentDisplayArea = document.getElementById('content-display-area');
+        const contentSections = contentDisplayArea.querySelectorAll('.content-section');
+        const topicListItems = topicListContainer.querySelectorAll('.topic-list-item');
+        const placeholderContent = document.getElementById('placeholder-content');
+        const bottomDashboard = document.getElementById('bottom-dashboard');
+        const translateButton = document.getElementById('translate-btn');
+        const fullscreenButton = document.getElementById('fullscreen-btn');
+        const fullscreenEnterIcon = document.getElementById('fullscreen-enter-icon');
+        const fullscreenExitIcon = document.getElementById('fullscreen-exit-icon');
+        const homeButton = document.getElementById('home-btn');
+        const translatableElements = document.querySelectorAll('[data-key]');
+        const bodyElement = document.body;
+
+        // Admin Auth UI Elements
+        const adminDashboardButton = document.getElementById('admin-dashboard-btn');
+        const adminLogoutButton = document.getElementById('admin-logout-btn');
+        const adminLoginOverlay = document.getElementById('admin-login-overlay');
+        const adminLoginForm = adminLoginOverlay.querySelector('.admin-login-form');
+        const adminEmailInput = document.getElementById('admin-email');
+        const adminPasswordInput = document.getElementById('admin-password');
+        const adminLoginButton = document.getElementById('admin-login-btn');
+        const loginErrorMessage = document.getElementById('login-error-message');
+
+
+        // --- State ---
+        let currentAdminAction = null;
+        let currentAdminTargetId = null;
+        let currentActionType = null;
+        let currentVideoKeyToRemove = null;
+
+
+        // --- Function to Load Summary from Firebase ---
+        function loadSummary(summaryId, targetLang) {
+            const summaryDiv = document.getElementById(summaryId);
+            if (!summaryDiv || !database) return Promise.resolve();
+            const defaultHTML = translations[targetLang]?.[summaryId] || `<p class="text-gray-400 italic">Default content not found for ${summaryId} [${targetLang}].</p>`;
+            const dbPath = `summaries/${targetLang}/${summaryId}`;
+            const summaryRef = database.ref(dbPath);
+            return summaryRef.once('value')
+                .then((snapshot) => {
+                    const summaryHTML = snapshot.val();
+                    summaryDiv.innerHTML = (summaryHTML !== null && summaryHTML !== undefined) ? summaryHTML : defaultHTML;
+                })
+                .catch((error) => {
+                    console.error(`Error loading summary for ${dbPath}: `, error);
+                    summaryDiv.innerHTML = defaultHTML;
+                    return Promise.reject(error);
+                });
+        }
+
+        // --- Function to Load PDF Link from Firebase ---
+        function loadPdfLink(targetElementId, targetLang) {
+            const targetElement = document.getElementById(targetElementId);
+            if (!targetElement || !database) return Promise.resolve();
+
+            const defaultUrl = '#'; // Default PDF link
+
+            const dbPath = `links/${targetLang}/${targetElementId}`; // Use element ID as key
+            const linkRef = database.ref(dbPath);
+
+            return linkRef.once('value')
+                .then((snapshot) => {
+                    const savedUrl = snapshot.val();
+                    const finalUrl = (savedUrl !== null && savedUrl !== undefined && savedUrl.trim() !== "") ? savedUrl : defaultUrl;
+                    if (targetElement.href !== finalUrl) {
+                        targetElement.href = finalUrl;
+                        console.log(`PDF link updated for ${targetElementId} from DB.`);
+                    }
+                })
+                .catch((error) => {
+                    if (error.code !== 'PERMISSION_DENIED') {
+                        console.error(`Error loading link for ${dbPath}: `, error);
+                    } else {
+                        console.warn(`Permission denied loading link for ${dbPath}. Using default.`);
+                    }
+                    targetElement.href = defaultUrl;
+                    return Promise.reject(error);
+                });
+        }
+
+         // --- Function to Load Quiz Link from Firebase ---
+         function loadQuizLink(targetElementId, targetLang) {
+             const targetElement = document.getElementById(targetElementId);
+             if (!targetElement || !database) return Promise.resolve();
+
+             const defaultUrl = '#'; // Default Quiz link
+
+             const dbPath = `quizLinks/${targetLang}/${targetElementId}`; // Use element ID as key
+             const linkRef = database.ref(dbPath);
+
+             return linkRef.once('value')
+                 .then((snapshot) => {
+                     const savedUrl = snapshot.val();
+                     const finalUrl = (savedUrl !== null && savedUrl !== undefined && savedUrl.trim() !== "") ? savedUrl : defaultUrl;
+                     // Set the data-url attribute for the button
+                     if (targetElement.dataset.url !== finalUrl) {
+                         targetElement.dataset.url = finalUrl;
+                         console.log(`Quiz link updated for ${targetElementId} from DB.`);
+                     }
+                 })
+                 .catch((error) => {
+                     if (error.code !== 'PERMISSION_DENIED') {
+                         console.error(`Error loading quiz link for ${dbPath}: `, error);
+                     } else {
+                         console.warn(`Permission denied loading quiz link for ${dbPath}. Using default.`);
+                     }
+                     targetElement.dataset.url = defaultUrl;
+                     return Promise.reject(error);
+                 });
+         }
+
+
+        // --- Helper to get YouTube Video ID ---
+        function getYoutubeVideoId(url) {
+            if (!url) return null;
+            const patterns = [
+                /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+                /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+                /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/,
+                // Handle youtube.com within googleusercontent.com
+                /googleusercontent\.com\/youtube\.com\/[0-9]+\/([a-zA-Z0-9_-]{11})/
+            ];
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+
+
+        // --- Function to Load and Display Videos ---
+        function loadAndDisplayVideos(topicId, targetLang) {
+            // Find the correct elements within the specific topic section
+            const topicSection = document.getElementById(topicId);
+            if (!topicSection) return Promise.reject(`Topic section ${topicId} not found`);
+
+            const videoListContainer = topicSection.querySelector('.video-list-container');
+            const mainPlayerIframe = topicSection.querySelector('.main-video-player iframe');
+
+            if (!videoListContainer || !mainPlayerIframe || !database) {
+                console.error("Video elements or database missing for", topicId);
+                return Promise.resolve();
+            }
+
+            const dbPath = `videos/${targetLang}/${topicId}`;
+            const videosRef = database.ref(dbPath);
+
+            return videosRef.once('value')
+                .then(snapshot => {
+                    videoListContainer.innerHTML = ''; // Clear previous list
+                    const videos = snapshot.val();
+                    let firstVideoUrl = null;
+                    let hasVideos = false;
+
+                    if (videos) {
+                        const videoKeys = Object.keys(videos);
+                        // Sort videos if needed, e.g., by a timestamp or a specific order property
+                        // videoKeys.sort((a, b) => videos[a].order - videos[b].order); // Example sorting
+
+                        videoKeys.forEach((key, index) => {
+                            hasVideos = true;
+                            const videoData = videos[key];
+                            if (index === 0 && videoData.url) {
+                                firstVideoUrl = videoData.url; // Get the first video URL
+                            }
+                            const videoItem = document.createElement('div');
+                            videoItem.classList.add('video-list-item');
+                            videoItem.dataset.url = videoData.url;
+                            videoItem.dataset.key = key; // Store Firebase key
+
+                            // Generate Thumbnail
+                            const videoId = getYoutubeVideoId(videoData.url);
+                            const thumb = document.createElement('img'); // Use img tag
+                            thumb.classList.add('video-thumbnail');
+                            thumb.alt = videoData.title || 'Video thumbnail';
+                            // Use standard YouTube thumbnail URL if ID is found
+                            thumb.src = videoId ? `http://img.youtube.com/vi/${videoId}/mqdefault.jpg` : 'https://placehold.co/160x90/374151/9ca3af?text=Video'; // Fallback placeholder
+                            thumb.onerror = function() { this.src='https://placehold.co/160x90/374151/9ca3af?text=Error'; }; // Handle thumbnail load errors
+                            videoItem.appendChild(thumb);
+
+                            const title = document.createElement('div');
+                            title.classList.add('video-title');
+                            title.textContent = videoData.title || 'Untitled Video';
+                            videoItem.appendChild(title);
+
+                            // Remove Button (visible in admin mode)
+                            const removeBtn = document.createElement('button');
+                            removeBtn.classList.add('remove-video-btn', 'admin-button');
+                            removeBtn.innerHTML = '×'; // Use HTML entity for 'x'
+                            removeBtn.title = 'Remove Video';
+                            removeBtn.dataset.topicId = topicId;
+                            removeBtn.dataset.videoKey = key;
+                            videoItem.appendChild(removeBtn);
+
+                            videoListContainer.appendChild(videoItem);
+                        });
+                    }
+
+                    // Set the main player to the first video or a default/placeholder
+                    if (firstVideoUrl) {
+                        // Ensure the main player iframe src is updated to HTTPS
+                         const httpsFirstVideoUrl = firstVideoUrl.replace('http://', 'https://');
+                         mainPlayerIframe.src = httpsFirstVideoUrl;
+                         // Highlight the first video in the list
+                         if (videoListContainer.firstChild && videoListContainer.firstChild.classList.contains('video-list-item')) {
+                             videoListContainer.firstChild.classList.add('active-video');
+                         }
+                    } else if (hasVideos) {
+                        // If there are videos but the first one was invalid, try finding the next valid one
+                        const firstValidItem = videoListContainer.querySelector('.video-list-item[data-url]');
+                        if(firstValidItem) {
+                             // Ensure the main player iframe src is updated to HTTPS
+                             const httpsFirstValidUrl = firstValidItem.dataset.url.replace('http://', 'https://');
+                             mainPlayerIframe.src = httpsFirstValidUrl;
+                             firstValidItem.classList.add('active-video');
+                        } else {
+                             console.warn(`No valid videos found for ${topicId}, main player source unchanged.`);
+                             // Keep the original hardcoded src if no valid videos in DB
+                             // mainPlayerIframe.src = 'about:blank'; // Or set a default placeholder video
+                        }
+                    } else {
+                        console.warn(`No videos found for ${topicId}, main player source unchanged.`);
+                        // Keep the original hardcoded src if no videos exist at all
+                        // mainPlayerIframe.src = 'about:blank'; // Or set a default placeholder video
+                    }
+
+
+                    if (!hasVideos) {
+                        videoListContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 w-full text-center">No additional videos added yet.</p>'; // Added dark mode text color
+                         // Set main player to a default or blank if no videos
+                         mainPlayerIframe.src = 'about:blank';
+                    }
+
+                })
+                .catch(error => {
+                    console.error(`Error loading videos for ${dbPath}: `, error);
+                    videoListContainer.innerHTML = '<p class="text-sm text-red-500 w-full text-center">Error loading videos.</p>';
+                    // Keep the original hardcoded src on error
+                    // mainPlayerIframe.src = 'about:blank'; // Or set a default placeholder video on error
+                    return Promise.reject(error);
+                });
+        }
+
+
+        // --- Function to execute formatting commands ---
+        function formatDoc(command, value = null, targetEditor = null) {
+            // Find the editor within the currently visible section if not provided
+            const editor = targetEditor || contentDisplayArea.querySelector('.content-section.visible .summary-content');
+            if (!editor || editor.getAttribute('contenteditable') !== 'true') {
+                console.warn("Format command ignored: No active editor found for this section or editor not editable.");
+                return;
+            }
+            editor.focus();
+            if (command === 'createLink') {
+                let url = prompt("Enter the link URL:", "https://"); // Changed default to https
+                if (url && url.trim() !== "" && url.trim() !== "https://") { // Added trim() and updated check
+                     // Use insertHTML to create proper link with target="_blank"
+                     document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${document.getSelection().toString()}</a>`);
+                } else {
+                     alert("Invalid URL."); // Added alert for invalid URL
+                }
+             } else if (command === 'foreColor') {
+                 document.execCommand(command, false, value);
+             } else {
+                 document.execCommand(command, false, null);
+             }
+            editor.focus();
+        }
+
+        // --- Function to make summary editable ---
+        function makeEditable(summaryDiv, toolbar) {
+            summaryDiv.setAttribute('contentEditable', 'true');
+            toolbar.classList.add('visible');
+            summaryDiv.focus();
+            console.log("Made editable:", summaryDiv.id);
+        }
+        // --- Function to make summary non-editable ---
+        function makeNonEditable(summaryDiv, toolbar) {
+            summaryDiv.removeAttribute('contentEditable');
+            toolbar.classList.remove('visible');
+            console.log("Made non-editable:", summaryDiv.id);
+        }
+
+        // --- Function to Prompt for and Update PDF Link (with Firebase Save) ---
+        function promptForPdfLink(targetElementId) {
+            // Check if user is authenticated (admin mode)
+            if (!auth.currentUser) {
+                alert("You must be logged in to perform this action.");
+                return;
+            }
+
+            const promptMessage = "Enter new PDF URL:";
+            const currentElement = document.getElementById(targetElementId);
+            const currentUrl = currentElement?.href === '#' || currentElement?.href === window.location.href ? '' : currentElement?.href; // Handle default '#' link
+            const newUrl = prompt(promptMessage, currentUrl || "https://"); // Changed default to https
+
+            const currentLang = document.body.classList.contains('lang-si') ? 'si' : 'en';
+
+            if (newUrl === null) return; // User cancelled
+
+            if (newUrl.trim() !== "" && newUrl.trim() !== "https://") { // Added trim() and updated check
+                const targetElement = document.getElementById(targetElementId);
+                if (targetElement && targetElement.tagName === 'A') {
+                    targetElement.href = newUrl; // Update DOM
+
+                    // Save to Firebase
+                    const dbPath = `links/${currentLang}/${targetElementId}`;
+                    const linkRef = database.ref(dbPath);
+                    linkRef.set(newUrl)
+                        .then(() => {
+                            console.log(`PDF link saved successfully to Firebase at ${dbPath}`);
+                            alert(`PDF link updated successfully!`);
+                        })
+                        .catch((error) => {
+                            console.error(`Error saving PDF link to Firebase at ${dbPath}: `, error);
+                            alert(`Error saving PDF link. Check console and Firebase Rules.`);
+                            targetElement.href = currentUrl || '#'; // Revert DOM on save error, use '#' as fallback
+                        });
+                } else {
+                    console.error(`Target element not found or not an A tag: ${targetElementId}`);
+                }
+            } else {
+                alert("Invalid URL. URL cannot be empty or the default 'https://'."); // Updated alert message
+            }
+        }
+
+         // --- Function to Load Quiz Link from Firebase ---
+         function loadQuizLink(targetElementId, targetLang) {
+             const targetElement = document.getElementById(targetElementId);
+             if (!targetElement || !database) return Promise.resolve();
+
+             const defaultUrl = '#'; // Default Quiz link
+
+             const dbPath = `quizLinks/${targetLang}/${targetElementId}`; // Use element ID as key
+             const linkRef = database.ref(dbPath);
+
+             return linkRef.once('value')
+                 .then((snapshot) => {
+                     const savedUrl = snapshot.val();
+                     const finalUrl = (savedUrl !== null && savedUrl !== undefined && savedUrl.trim() !== "") ? savedUrl : defaultUrl;
+                     // Set the data-url attribute for the button
+                     if (targetElement.dataset.url !== finalUrl) {
+                         targetElement.dataset.url = finalUrl;
+                         console.log(`Quiz link updated for ${targetElementId} from DB.`);
+                     }
+                 })
+                 .catch((error) => {
+                     if (error.code !== 'PERMISSION_DENIED') {
+                         console.error(`Error loading quiz link for ${dbPath}: `, error);
+                     } else {
+                         console.warn(`Permission denied loading quiz link for ${dbPath}. Using default.`);
+                     }
+                     targetElement.dataset.url = defaultUrl;
+                     return Promise.reject(error);
+                 });
+         }
+
+
+        // --- Helper to get YouTube Video ID ---
+        function getYoutubeVideoId(url) {
+            if (!url) return null;
+            const patterns = [
+                /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+                /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+                /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/,
+                // Handle youtube.com within googleusercontent.com
+                /googleusercontent\.com\/youtube\.com\/[0-9]+\/([a-zA-Z0-9_-]{11})/
+            ];
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+
+
+        // --- Function to Load and Display Videos ---
+        function loadAndDisplayVideos(topicId, targetLang) {
+            // Find the correct elements within the specific topic section
+            const topicSection = document.getElementById(topicId);
+            if (!topicSection) return Promise.reject(`Topic section ${topicId} not found`);
+
+            const videoListContainer = topicSection.querySelector('.video-list-container');
+            const mainPlayerIframe = topicSection.querySelector('.main-video-player iframe');
+
+            if (!videoListContainer || !mainPlayerIframe || !database) {
+                console.error("Video elements or database missing for", topicId);
+                return Promise.resolve();
+            }
+
+            const dbPath = `videos/${targetLang}/${topicId}`;
+            const videosRef = database.ref(dbPath);
+
+            return videosRef.once('value')
+                .then(snapshot => {
+                    videoListContainer.innerHTML = ''; // Clear previous list
+                    const videos = snapshot.val();
+                    let firstVideoUrl = null;
+                    let hasVideos = false;
+
+                    if (videos) {
+                        const videoKeys = Object.keys(videos);
+                        // Sort videos if needed, e.g., by a timestamp or a specific order property
+                        // videoKeys.sort((a, b) => videos[a].order - videos[b].order); // Example sorting
+
+                        videoKeys.forEach((key, index) => {
+                            hasVideos = true;
+                            const videoData = videos[key];
+                            if (index === 0 && videoData.url) {
+                                firstVideoUrl = videoData.url; // Get the first video URL
+                            }
+                            const videoItem = document.createElement('div');
+                            videoItem.classList.add('video-list-item');
+                            videoItem.dataset.url = videoData.url;
+                            videoItem.dataset.key = key; // Store Firebase key
+
+                            // Generate Thumbnail
+                            const videoId = getYoutubeVideoId(videoData.url);
+                            const thumb = document.createElement('img'); // Use img tag
+                            thumb.classList.add('video-thumbnail');
+                            thumb.alt = videoData.title || 'Video thumbnail';
+                            // Use standard YouTube thumbnail URL if ID is found
+                            thumb.src = videoId ? `http://img.youtube.com/vi/${videoId}/mqdefault.jpg` : 'https://placehold.co/160x90/374151/9ca3af?text=Video'; // Fallback placeholder
+                            thumb.onerror = function() { this.src='https://placehold.co/160x90/374151/9ca3af?text=Error'; }; // Handle thumbnail load errors
+                            videoItem.appendChild(thumb);
+
+                            const title = document.createElement('div');
+                            title.classList.add('video-title');
+                            title.textContent = videoData.title || 'Untitled Video';
+                            videoItem.appendChild(title);
+
+                            // Remove Button (visible in admin mode)
+                            const removeBtn = document.createElement('button');
+                            removeBtn.classList.add('remove-video-btn', 'admin-button');
+                            removeBtn.innerHTML = '×'; // Use HTML entity for 'x'
+                            removeBtn.title = 'Remove Video';
+                            removeBtn.dataset.topicId = topicId;
+                            removeBtn.dataset.videoKey = key;
+                            videoItem.appendChild(removeBtn);
+
+                            videoListContainer.appendChild(videoItem);
+                        });
+                    }
+
+                    // Set the main player to the first video or a default/placeholder
+                    if (firstVideoUrl) {
+                        // Ensure the main player iframe src is updated to HTTPS
+                         const httpsFirstVideoUrl = firstVideoUrl.replace('http://', 'https://');
+                         mainPlayerIframe.src = httpsFirstVideoUrl;
+                         // Highlight the first video in the list
+                         if (videoListContainer.firstChild && videoListContainer.firstChild.classList.contains('video-list-item')) {
+                             videoListContainer.firstChild.classList.add('active-video');
+                         }
+                    } else if (hasVideos) {
+                        // If there are videos but the first one was invalid, try finding the next valid one
+                        const firstValidItem = videoListContainer.querySelector('.video-list-item[data-url]');
+                        if(firstValidItem) {
+                             // Ensure the main player iframe src is updated to HTTPS
+                             const httpsFirstValidUrl = firstValidItem.dataset.url.replace('http://', 'https://');
+                             mainPlayerIframe.src = httpsFirstValidUrl;
+                             firstValidItem.classList.add('active-video');
+                        } else {
+                             console.warn(`No valid videos found for ${topicId}, main player source unchanged.`);
+                             // Keep the original hardcoded src if no valid videos in DB
+                             // mainPlayerIframe.src = 'about:blank'; // Or set a default placeholder video
+                        }
+                    } else {
+                        console.warn(`No videos found for ${topicId}, main player source unchanged.`);
+                        // Keep the original hardcoded src if no videos exist at all
+                        // mainPlayerIframe.src = 'about:blank'; // Or set a default placeholder video
+                    }
+
+
+                    if (!hasVideos) {
+                        videoListContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 w-full text-center">No additional videos added yet.</p>'; // Added dark mode text color
+                         // Set main player to a default or blank if no videos
+                         mainPlayerIframe.src = 'about:blank';
+                    }
+
+                })
+                .catch(error => {
+                    console.error(`Error loading videos for ${dbPath}: `, error);
+                    videoListContainer.innerHTML = '<p class="text-sm text-red-500 w-full text-center">Error loading videos.</p>';
+                    // Keep the original hardcoded src on error
+                    // mainPlayerIframe.src = 'about:blank'; // Or set a default placeholder video on error
+                    return Promise.reject(error);
+                });
+        }
+
+
+        // --- Function to execute formatting commands ---
+        function formatDoc(command, value = null, targetEditor = null) {
+            // Find the editor within the currently visible section if not provided
+            const editor = targetEditor || contentDisplayArea.querySelector('.content-section.visible .summary-content');
+            if (!editor || editor.getAttribute('contenteditable') !== 'true') {
+                console.warn("Format command ignored: No active editor found for this section or editor not editable.");
+                return;
+            }
+            editor.focus();
+            if (command === 'createLink') {
+                let url = prompt("Enter the link URL:", "https://"); // Changed default to https
+                if (url && url.trim() !== "" && url.trim() !== "https://") { // Added trim() and updated check
+                     // Use insertHTML to create proper link with target="_blank"
+                     document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${document.getSelection().toString()}</a>`);
+                } else {
+                     alert("Invalid URL."); // Added alert for invalid URL
+                }
+             } else if (command === 'foreColor') {
+                 document.execCommand(command, false, value);
+             } else {
+                 document.execCommand(command, false, null);
+             }
+            editor.focus();
+        }
+
+        // --- Function to make summary editable ---
+        function makeEditable(summaryDiv, toolbar) {
+            summaryDiv.setAttribute('contentEditable', 'true');
+            toolbar.classList.add('visible');
+            summaryDiv.focus();
+            console.log("Made editable:", summaryDiv.id);
+        }
+        // --- Function to make summary non-editable ---
+        function makeNonEditable(summaryDiv, toolbar) {
+            summaryDiv.removeAttribute('contentEditable');
+            toolbar.classList.remove('visible');
+            console.log("Made non-editable:", summaryDiv.id);
+        }
+
+        // --- Function to Prompt for and Update PDF Link (with Firebase Save) ---
+        function promptForPdfLink(targetElementId) {
+            // Check if user is authenticated (admin mode)
+            if (!auth.currentUser) {
+                alert("You must be logged in to perform this action.");
+                return;
+            }
+
+            const promptMessage = "Enter new PDF URL:";
+            const currentElement = document.getElementById(targetElementId);
+            const currentUrl = currentElement?.href === '#' || currentElement?.href === window.location.href ? '' : currentElement?.href; // Handle default '#' link
+            const newUrl = prompt(promptMessage, currentUrl || "https://"); // Changed default to https
+
+            const currentLang = document.body.classList.contains('lang-si') ? 'si' : 'en';
+
+            if (newUrl === null) return; // User cancelled
+
+            if (newUrl.trim() !== "" && newUrl.trim() !== "https://") { // Added trim() and updated check
+                const targetElement = document.getElementById(targetElementId);
+                if (targetElement && targetElement.tagName === 'A') {
+                    targetElement.href = newUrl; // Update DOM
+
+                    // Save to Firebase
+                    const dbPath = `links/${currentLang}/${targetElementId}`;
+                    const linkRef = database.ref(dbPath);
+                    linkRef.set(newUrl)
+                        .then(() => {
+                            console.log(`PDF link saved successfully to Firebase at ${dbPath}`);
+                            alert(`PDF link updated successfully!`);
+                        })
+                        .catch((error) => {
+                            console.error(`Error saving PDF link to Firebase at ${dbPath}: `, error);
+                            alert(`Error saving PDF link. Check console and Firebase Rules.`);
+                            targetElement.href = currentUrl || '#'; // Revert DOM on save error, use '#' as fallback
+                        });
+                } else {
+                    console.error(`Target element not found or not an A tag: ${targetElementId}`);
+                }
+            } else {
+                alert("Invalid URL. URL cannot be empty or the default 'https://'."); // Updated alert message
+            }
+        }
+
+         // --- Function to Prompt for and Update Quiz Link (with Firebase Save) ---
+         function promptForQuizLink(targetElementId) {
+             // Check if user is authenticated (admin mode)
+             if (!auth.currentUser) {
+                 alert("You must be logged in to perform this action.");
+                 return;
+             }
+
+             const promptMessage = "Enter new Quiz (Google Form) URL:";
+             const currentElement = document.getElementById(targetElementId);
+             // Get the current URL from the data-url attribute
+             const currentUrl = currentElement?.dataset.url === '#' || currentElement?.dataset.url === undefined ? '' : currentElement?.dataset.url;
+             const newUrl = prompt(promptMessage, currentUrl || "https://"); // Changed default to https
+
+             const currentLang = document.body.classList.contains('lang-si') ? 'si' : 'en';
+
+             if (newUrl === null) return; // User cancelled
+
+             // Basic URL validation (can be enhanced)
+             try {
+                 new URL(newUrl);
+             } catch (e) {
+                 alert("Invalid URL format.");
+                 return;
+             }
+
+             if (newUrl.trim() !== "" && newUrl.trim() !== "https://") { // Added trim() and updated check
+                 const targetElement = document.getElementById(targetElementId);
+                 if (targetElement && targetElement.tagName === 'BUTTON') { // Check if it's a button
+                     targetElement.dataset.url = newUrl; // Update data-url attribute
+
+                     // Save to Firebase
+                     const dbPath = `quizLinks/${currentLang}/${targetElementId}`; // Use element ID as key
+                     const linkRef = database.ref(dbPath);
+                     linkRef.set(newUrl)
+                         .then(() => {
+                             console.log(`Quiz link saved successfully to Firebase at ${dbPath}`);
+                             alert(`Quiz link updated successfully!`);
+                         })
+                         .catch((error) => {
+                             console.error(`Error saving Quiz link to Firebase at ${dbPath}: `, error);
+                             alert(`Error saving Quiz link. Check console and Firebase Rules.`);
+                             targetElement.dataset.url = currentUrl || '#'; // Revert DOM on save error, use '#' as fallback
+                         });
+                 } else {
+                     console.error(`Target element not found or not a BUTTON tag: ${targetElementId}`);
+                 }
+             } else {
+                 alert("Invalid URL. URL cannot be empty or the default 'https://'."); // Updated alert message
+             }
+         }
+
+
+        // --- Function to Add a New Video Link ---
+        function promptForNewVideo(topicId) {
+            // Check if user is authenticated (admin mode)
+            if (!auth.currentUser) {
+                alert("You must be logged in to perform this action.");
+                return;
+            }
+
+            const urlPrompt = "Enter YouTube EMBED URL for the new video (e.g., https://www.youtube.com/embed/VIDEO_ID):"; // Updated prompt for clarity and https
+            const titlePrompt = "Enter a short title for the video:";
+            const newUrl = prompt(urlPrompt);
+            if (newUrl === null) return; // Cancelled URL
+
+            // Improved validation for YouTube embed URL
+            const youtubeEmbedRegex = /^(https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/;
+            if (!youtubeEmbedRegex.test(newUrl)) {
+                 alert("Invalid YouTube Embed URL format. Please use the format: https://www.youtube.com/embed/VIDEO_ID"); // Updated format and message
+                 return;
+            }
+
+            const newTitle = prompt(titlePrompt, "New Video");
+            if (newTitle === null) return; // Cancelled Title
+
+            const currentLang = document.body.classList.contains('lang-si') ? 'si' : 'en';
+            const dbPath = `videos/${currentLang}/${topicId}`;
+            const videosRef = database.ref(dbPath);
+
+            // Push generates a unique key
+            videosRef.push({ url: newUrl, title: newTitle.trim() || "Untitled Video" })
+                .then(() => {
+                    console.log(`New video added successfully to ${dbPath}`);
+                    alert('New video added!');
+                    // Refresh the video list for the current topic
+                    loadAndDisplayVideos(topicId, currentLang);
+                })
+                .catch((error) => {
+                    console.error(`Error adding video to Firebase at ${dbPath}: `, error);
+                    alert('Error adding video. Check console and Firebase Rules.');
+                });
+        }
+
+        // --- Function to Set Main Video Link (Updates iframe src and saves) ---
+        function promptForMainVideoLink(iframeId) {
+             // Check if user is authenticated (admin mode)
+            if (!auth.currentUser) {
+                alert("You must be logged in to perform this action.");
+                return;
+            }
+
+            const promptMessage = "Enter new YouTube EMBED URL for the MAIN video player (e.g., https://www.youtube.com/embed/VIDEO_ID):"; // Updated prompt for clarity and https
+            const iframeElement = document.getElementById(iframeId);
+             // Handle hardcoded src and use https
+            const currentUrl = iframeElement?.src === 'https://www.youtube.com/embed/0' ? '' : iframeElement?.src.replace('http://', 'https://');
+            const newUrl = prompt(promptMessage, currentUrl || "https://"); // Changed default to https
+
+            const currentLang = document.body.classList.contains('lang-si') ? 'si' : 'en';
+
+            if (newUrl === null) return; // User cancelled
+
+            if (newUrl.trim() !== "" && newUrl.trim() !== "https://") { // Added trim() and updated check
+                 // Improved validation for YouTube embed URL
+                 const youtubeEmbedRegex = /^(https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/;
+                 if (!youtubeEmbedRegex.test(newUrl)) {
+                      alert("Invalid YouTube Embed URL format. Please use the format: https://www.youtube.com/embed/VIDEO_ID"); // Updated format and message
+                      return;
+                 }
+
+                if (iframeElement) {
+                     // Ensure the new URL is HTTPS
+                     const httpsNewUrl = newUrl.replace('http://', 'https://');
+                     iframeElement.src = httpsNewUrl; // Update DOM
+
+                     // Save to Firebase (using a different path, e.g., links/ for main links)
+                     const dbPath = `links/${currentLang}/${iframeId}`; // Use iframe ID as key
+                     const linkRef = database.ref(dbPath);
+                     linkRef.set(httpsNewUrl)
+                         .then(() => {
+                             console.log(`Main video link saved successfully to Firebase at ${dbPath}`);
+                             alert(`Main video link updated successfully!`);
+                         })
+                         .catch((error) => {
+                             console.error(`Error saving main video link to Firebase at ${dbPath}: `, error);
+                             alert(`Error saving main video link. Check console and Firebase Rules.`);
+                             iframeElement.src = currentUrl || 'about:blank'; // Revert DOM on save error, use 'about:blank' as fallback
+                         });
+                } else {
+                    console.error(`Target iframe not found for ID: ${iframeId}`);
+                }
+            } else {
+                alert("Invalid URL. URL cannot be empty or the default 'https://'."); // Updated alert message
+            }
+        }
+
+
+        // --- Function to Remove a Video Link ---
+        function removeVideo(topicId, videoKey) {
+             // Check if user is authenticated (admin mode)
+            if (!auth.currentUser) {
+                alert("You must be logged in to perform this action.");
+                return;
+            }
+
+            if (!confirm('Are you sure you want to remove this video?')) {
+                return;
+            }
+            const currentLang = document.body.classList.contains('lang-si') ? 'si' : 'en';
+            const dbPath = `videos/${currentLang}/${topicId}/${videoKey}`;
+            const videoRef = database.ref(dbPath);
+
+            videoRef.remove()
+                .then(() => {
+                    console.log(`Video removed successfully from ${dbPath}`);
+                    alert('Video removed.');
+                    // Refresh the video list
+                    loadAndDisplayVideos(topicId, currentLang);
+                })
+                .catch((error) => {
+                    console.error(`Error removing video from Firebase at ${dbPath}: `, error);
+                    alert('Error removing video. Check console and Firebase Rules.');
+                });
+        }
+
+
+        // --- Function to execute the actual admin action (Checks authentication state) ---
+        function executeAdminAction(button, targetId, actionType, videoKey = null) {
+            // Primary check for authentication
+            if (!auth.currentUser) {
+                alert("You must be logged in to perform this action.");
+                console.warn("Unauthorized attempt to execute admin action (User not authenticated).");
+                return;
+            }
+
+            const currentLang = document.body.classList.contains('lang-si') ? 'si' : 'en';
+
+            if (actionType === 'editSummary') {
+                const summaryDiv = document.getElementById(targetId);
+                const toolbar = document.getElementById(`toolbar-${targetId}`);
+                const isEditing = summaryDiv.getAttribute('contentEditable') === 'true';
+
+                if (isEditing) { // Save action
+                    const editedContent = summaryDiv.innerHTML;
+                    makeNonEditable(summaryDiv, toolbar);
+                    const dbPath = `summaries/${currentLang}/${targetId}`;
+                    const summaryRef = database.ref(dbPath);
+                    button.disabled = true;
+                    const iconElement = button.querySelector('svg.icon') || button.querySelector('i.icon');
+                    const originalButtonText = button.textContent.replace(iconElement?.outerHTML || '', '').trim();
+                    button.textContent = 'Saving...';
+                    if(iconElement) button.prepend(iconElement.cloneNode(true));
+
+                    summaryRef.set(editedContent)
+                        .then(() => {
+                            console.log(`Summary saved successfully to Firebase at ${dbPath}`);
+                            button.disabled = false;
+                            const editKey = button.getAttribute('data-key').replace('save', 'edit');
+                            button.setAttribute('data-key', editKey);
+                            setLanguage(currentLang, false); // Update button text
+                        })
+                        .catch((error) => {
+                            console.error(`Error saving summary to Firebase at ${dbPath}: `, error);
+                            alert("Error saving summary. Check console and Firebase rules.");
+                            button.disabled = false;
+                            button.textContent = originalButtonText; // Restore original text
+                            if(iconElement) button.prepend(iconElement.cloneNode(true));
+                            button.classList.add('inline-flex', 'items-center');
+                        });
+                } else { // Edit action
+                    makeEditable(summaryDiv, toolbar);
+                    const saveKey = button.getAttribute('data-key').replace('edit', 'save');
+                    button.setAttribute('data-key', saveKey);
+                    setLanguage(currentLang, false); // Update button text
+                }
+            } else if (actionType === 'addVideo') {
+                promptForNewVideo(targetId); // targetId is the topicId here
+            } else if (actionType === 'removeVideo') {
+                removeVideo(targetId, videoKey); // Pass topicId and videoKey
+            } else if (actionType === 'editPdf') {
+                promptForPdfLink(targetId); // targetId is the pdf link element id
+             } else if (actionType === 'editQuiz') { // Handle Set Quiz Link action
+                 promptForQuizLink(targetId); // targetId is the quiz link button id
+            } else if (actionType === 'setMainVideo') { // Handle setting main video
+                actionType = 'setMainVideo';
+                targetId = button.dataset.targetIframe;
+            }
+        }
+
+
+        // --- Event Listener for Topic Selection (Corrected) ---
+        topicListContainer.addEventListener('click', function(event) {
+            const button = event.target.closest('.topic-list-item');
+            if (!button) return;
+
+            const targetId = button.getAttribute('data-target'); // e.g., "topic-5-1" or "topic-quiz"
+            const targetContent = document.getElementById(targetId);
+            const currentLang = document.body.classList.contains('lang-si') ? 'si' : 'en';
+            const currentlyVisible = contentDisplayArea.querySelector('.content-section.visible');
+
+            if (!targetContent) {
+                console.error(`Target content section with ID ${targetId} not found.`);
+                return; // Exit if target content doesn't exist
+            }
+
+            if (currentlyVisible === targetContent) return; // Don't do anything if clicking the already active topic
+
+            // Close any open admin menus before switching
+            document.querySelectorAll('.admin-actions-menu.active').forEach(menu => menu.classList.remove('active'));
+
+            // Update active/inactive states for buttons
+            topicListItems.forEach(item => {
+                item.classList.toggle('active', item === button);
+                item.classList.toggle('inactive', item !== button);
+            });
+
+            // Add/Remove class to body to trigger layout change
+            bodyElement.classList.add('topic-selected');
+
+
+            const showNewTopic = () => {
+                if (placeholderContent) placeholderContent.style.display = 'none';
+                if (targetContent) {
+                    // Only load data if it's not the quiz section
+                    if (targetId !== 'topic-quiz') {
+                        const summaryId = targetId + '-summary';
+                        // Construct IDs safely, assuming format like 'topic-U-L'
+                        const parts = targetId.split('-');
+                        let pdfLinkId = null;
+                        let quizLinkId = null; // Added quiz link ID
+                        let videoListContainerId = null;
+                        let videoSection = null;
+                        if (parts.length === 3) {
+                            pdfLinkId = `pdf-link-${parts[1]}-${parts[2]}`;
+                            quizLinkId = `quiz-link-${parts[1]}-${parts[2]}`; // Construct quiz link ID
+                            videoListContainerId = `video-list-container-${parts[1]}-${parts[2]}`;
+                            videoSection = targetContent.querySelector('.video-section'); // Check within targetContent
+                        }
+
+                        let promisesToLoad = [loadSummary(summaryId, currentLang)];
+                        if(pdfLinkId && document.getElementById(pdfLinkId)) {
+                            promisesToLoad.push(loadPdfLink(pdfLinkId, currentLang));
+                        }
+                         if(quizLinkId && document.getElementById(quizLinkId)) { // Load quiz link
+                             promisesToLoad.push(loadQuizLink(quizLinkId, currentLang));
+                         }
+                        if(videoSection && videoListContainerId && document.getElementById(videoListContainerId)) {
+                             promisesToLoad.push(loadAndDisplayVideos(targetId, currentLang));
+                        }
+
+                        Promise.allSettled(promisesToLoad).finally(() => {
+                                 targetContent.style.display = 'block'; // Make sure it's display: block
+                                 requestAnimationFrame(() => { // Wait for next frame
+                                     requestAnimationFrame(() => { // Wait another frame for styles to apply
+                                         targetContent.classList.add('visible'); // Trigger transition
+                                         setLanguage(currentLang, false); // Update static text
+                                     });
+                                 });
+                             });
+                    } else {
+                        // Just show the quiz section
+                        targetContent.style.display = 'block';
+                         requestAnimationFrame(() => {
+                             requestAnimationFrame(() => {
+                                 targetContent.classList.add('visible');
+                                 setLanguage(currentLang, false); // Update static text
+                             });
+                         });
+                    }
+                } else {
+                    if (placeholderContent) placeholderContent.style.display = 'block';
+                     bodyElement.classList.remove('topic-selected');
+                }
+            };
+
+            // Hide the currently visible section before showing the new one
+            if (currentlyVisible) {
+                 const currentSummaryId = currentlyVisible.id + '-summary';
+                 const currentSummaryDiv = document.getElementById(currentSummaryId);
+                 const currentToolbar = document.getElementById(`toolbar-${currentSummaryId}`);
+                 const editButton = currentlyVisible.querySelector('.edit-save-btn');
+                 // If leaving an editable summary, make it non-editable and reset button
+                 if (currentSummaryDiv && currentToolbar && currentSummaryDiv.getAttribute('contentEditable') === 'true') {
+                     makeNonEditable(currentSummaryDiv, currentToolbar);
+                     if (editButton && editButton.getAttribute('data-key').startsWith('save_btn')) {
+                         const editKey = editButton.getAttribute('data-key').replace('save', 'edit');
+                         editButton.setAttribute('data-key', editKey);
+                         editButton.disabled = false;
+                         setLanguage(currentLang, false); // Update button text back to 'Edit')
+                     }
+                 }
+                 // Stop video if playing
+                 const iframe = currentlyVisible.querySelector('.main-video-player iframe');
+                 if (iframe && iframe.contentWindow) { try { iframe.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*'); } catch(e) { console.warn("Could not stop video in iframe:", e); } }
+
+                // Start hiding animation
+                currentlyVisible.classList.remove('visible');
+                // Wait for hiding animation to finish before showing new topic
+                currentlyVisible.addEventListener('transitionend', function handler(e) {
+                    // Make sure the event is for opacity and the element is actually hidden
+                    if (e.propertyName === 'opacity' && !currentlyVisible.classList.contains('visible')) {
+                        currentlyVisible.style.display = 'none'; // Set display none after transition
+                        currentlyVisible.removeEventListener('transitionend', handler);
+                        showNewTopic(); // Show the new topic after the old one is hidden
+                    }
+                }, { once: false }); // Use once: false temporarily if issues arise
+            } else {
+                // If nothing was visible, just show the new topic
+                showNewTopic();
+            }
+        });
+
+
+        // --- Edit/Save/Link/Video Button Logic (Uses authentication state) ---
+        function handleAdminAction(button) {
+            const actionMenu = button.closest('.admin-actions-menu');
+
+            // Determine action type and target ID based on the button clicked
+            let actionType = null;
+            let targetId = null;
+            let videoKey = null; // For remove video action
+
+            if (button.classList.contains('edit-save-btn')) {
+                actionType = 'editSummary';
+                targetId = button.dataset.summaryId;
+            } else if (button.classList.contains('add-video-btn')) {
+                 actionType = 'addVideo';
+                 targetId = button.dataset.topicId;
+            } else if (button.classList.contains('remove-video-btn')) {
+                 actionType = 'removeVideo';
+                 targetId = button.dataset.topicId;
+                 videoKey = button.dataset.videoKey;
+            } else if (button.classList.contains('edit-pdf-btn')) {
+                actionType = 'editPdf';
+                targetId = button.dataset.targetPdf;
+             } else if (button.classList.contains('edit-quiz-btn')) { // Added quiz edit action
+                 actionType = 'editQuiz';
+                 targetId = button.dataset.targetQuiz;
+            } else if (button.classList.contains('setMainVideo')) { // Handle setting main video
+                actionType = 'setMainVideo';
+                targetId = button.dataset.targetIframe;
+            }
+
+
+             // Hide the menu immediately (except for remove confirmation)
+             if (actionMenu && !button.classList.contains('remove-video-btn')) {
+                 actionMenu.classList.remove('active');
+             }
+
+            // Execute action (will check authentication state inside)
+            if (actionType && targetId) {
+                 executeAdminAction(button, targetId, actionType, videoKey);
+            }
+        }
+
+
+        // --- Translation Logic ---
+        function setLanguage(lang, reloadSummary = true) {
+            console.log(`Setting language to: ${lang}. Reload summary: ${reloadSummary}`);
+            const activeTopicButton = topicListContainer.querySelector('.topic-list-item.active');
+            const currentVisibleSection = contentDisplayArea.querySelector('.content-section.visible');
+
+            document.querySelectorAll('[data-key]').forEach(element => {
+                const key = element.getAttribute('data-key');
+                const isSummaryContent = element.classList.contains('summary-content');
+                const parentSummaryDiv = element.closest('div[id$="-summary"]');
+                const isBeingEdited = parentSummaryDiv && parentSummaryDiv.getAttribute('contentEditable') === 'true';
+
+                // Update text only if it's not an editable summary or if it's not currently being edited
+                if (translations[lang]?.[key] && (!isSummaryContent || !isBeingEdited)) {
+                     const iconSVG = element.querySelector('svg.icon');
+                     const iconFA = element.querySelector('i.icon'); // Check for FontAwesome icon too
+                     let translatedText = translations[lang][key];
+
+                     // Special handling for Edit/Save button text based on current state
+                     if (element.tagName === 'BUTTON' && element.classList.contains('edit-save-btn')) {
+                         const currentKey = element.getAttribute('data-key'); // e.g., edit_btn_5_1 or save_btn_5_1
+                         const baseKey = currentKey.startsWith('save_') ? currentKey.replace('save', 'edit') : currentKey;
+                         const editKey = baseKey;
+                         const saveKey = baseKey.replace('edit', 'save');
+
+                         // Determine which text to show based on whether the corresponding summary is editable
+                         const summaryId = element.dataset.summaryId;
+                         const summaryDiv = document.getElementById(summaryId);
+                         const isCurrentlyEditing = summaryDiv && summaryDiv.getAttribute('contentEditable') === 'true';
+
+                         translatedText = isCurrentlyEditing ? (translations[lang][saveKey] || 'Save Summary') : (translations[lang][editKey] || 'Edit Summary');
+                     }
+
+                     // Apply text and icon
+                     if ((element.tagName === 'BUTTON' || element.tagName === 'A') && (iconSVG || iconFA) && element.classList.contains('action-button')) {
+                         const iconElement = iconSVG || iconFA;
+                         element.textContent = translatedText; element.prepend(iconElement.cloneNode(true)); element.classList.add('inline-flex', 'items-center');
+                     }
+                     // Handle buttons without icons or non-action buttons
+                     else if (element.tagName === 'BUTTON' && (element.classList.contains('edit-save-btn') || element.classList.contains('edit-video-btn') || element.classList.contains('edit-pdf-btn') || element.classList.contains('add-video-btn') || element.classList.contains('edit-quiz-btn'))) { // Added edit-quiz-btn
+                         const currentIcon = element.querySelector('svg.icon') || element.querySelector('i.icon');
+                         element.textContent = translatedText;
+                         if (currentIcon) element.prepend(currentIcon.cloneNode(true));
+                         element.classList.add('inline-flex', 'items-center');
+                     }
+                      // Handle the quiz button separately as it's a button but not an admin action
+                     else if (element.tagName === 'BUTTON' && element.classList.contains('quiz-button')) {
+                         element.textContent = translatedText;
+                     }
+                     else if (element.id === 'main-title' || element.id === 'main-subtitle' || element.classList.contains('topic-list-item') || element.tagName === 'H2' || element.tagName === 'H3' || element.id === 'placeholder-content') {
+                         element.textContent = translatedText;
+                     }
+                     else { element.textContent = translatedText; }
+                }
+            });
+
+            const nextLangCode = lang === 'en' ? 'SI' : 'EN';
+            translateButton.textContent = nextLangCode;
+            bodyElement.classList.remove('lang-en', 'lang-si');
+            bodyElement.classList.add(`lang-${lang}`);
+            translateButton.setAttribute('data-lang', lang === 'en' ? 'si' : 'en');
+
+            if (currentVisibleSection && reloadSummary) {
+                const topicId = currentVisibleSection.id; // e.g., topic-5-1
+                const summaryId = topicId + '-summary';
+                const pdfLinkId = currentVisibleSection.querySelector('a[id^="pdf-link-"]')?.id;
+                const quizLinkId = currentVisibleSection.querySelector('button[id^="quiz-link-"]')?.id; // Get quiz link button ID
+                const summaryDiv = document.getElementById(summaryId);
+                const toolbar = document.getElementById(`toolbar-${summaryId}`);
+                if (summaryDiv && toolbar && summaryDiv.getAttribute('contentEditable') === 'true') {
+                    makeNonEditable(summaryDiv, toolbar);
+                     const editButton = currentVisibleSection.querySelector('.edit-save-btn');
+                     if(editButton) {
+                         const editKey = editButton.getAttribute('data-key').startsWith('save_') ? editButton.getAttribute('data-key').replace('save', 'edit') : editButton.getAttribute('data-key');
+                         editButton.setAttribute('data-key', editKey);
+                         editButton.disabled = false;
+                         setLanguage(currentLang, false); // Update button text back to 'Edit')
+                     }
+                }
+                // Load summary and links for the new language
+                // Check if it's not the quiz section before loading data
+                if (topicId !== 'topic-quiz') {
+                    let promisesToLoad = [loadSummary(summaryId, currentLang)];
+                    if(pdfLinkId && document.getElementById(pdfLinkId)) {
+                        promisesToLoad.push(loadPdfLink(pdfLinkId, currentLang));
+                    }
+                     if(quizLinkId && document.getElementById(quizLinkId)) { // Load quiz link
+                         promisesToLoad.push(loadQuizLink(quizLinkId, currentLang));
+                     }
+                    // Find the video section within the currentVisibleSection
+                    const videoSection = currentVisibleSection.querySelector('.video-section');
+                    const videoListContainer = videoSection ? videoSection.querySelector('.video-list-container') : null;
+                    const mainVideoIframe = videoSection ? videoSection.querySelector('.main-video-player iframe') : null;
+
+                    if(videoSection && videoListContainer && mainVideoIframe) {
+                         // Assuming topicId is structured like 'topic-U-L'
+                         const parts = topicId.split('-');
+                         if (parts.length === 3) {
+                              const videoListContainerId = `video-list-container-${parts[1]}-${parts[2]}`;
+                              if (document.getElementById(videoListContainerId)) {
+                                   promisesToLoad.push(loadAndDisplayVideos(topicId, currentLang));
+                              }
+                         }
+                    }
+
+
+                    Promise.allSettled(promisesToLoad).finally(() => {
+                                 targetContent.style.display = 'block'; // Make sure it's display: block
+                                 requestAnimationFrame(() => { // Wait for next frame
+                                     requestAnimationFrame(() => { // Wait another frame for styles to apply
+                                         targetContent.classList.add('visible'); // Trigger transition
+                                         setLanguage(currentLang, false); // Update static text
+                                     });
+                                 });
+                             });
+                } else {
+                     setLanguage(lang, false); // Just update static text for quiz
+                }
+            } else if (currentVisibleSection) { // Update static text if not reloading summary
+                 currentVisibleSection.querySelectorAll('[data-key]:not(.summary-content)').forEach(el => {
+                     const key = el.getAttribute('data-key');
+                     if (translations[lang]?.[key]) {
+                         if (el.tagName === 'H2' || el.tagName === 'H3') {
+                             el.textContent = translations[lang][key];
+                         } else if (el.classList.contains('action-button')) {
+                             const iconSVG = el.querySelector('svg.icon');
+                             const iconFA = el.querySelector('i.icon');
+                             el.textContent = translations[lang][key];
+                             if (iconSVG) el.prepend(iconSVG.cloneNode(true));
+                             else if (iconFA) el.prepend(iconFA.cloneNode(true));
+                             el.classList.add('inline-flex', 'items-center');
+                         }
+                          // Handle the quiz button separately
+                         else if (el.tagName === 'BUTTON' && el.classList.contains('quiz-button')) {
+                             el.textContent = translations[lang][key];
+                         }
+                     }
+                 });
+            }
+
+             if (activeTopicButton) {
+                 topicListItems.forEach(item => {
+                     item.classList.toggle('active', item === activeTopicButton);
+                     item.classList.toggle('inactive', item !== activeTopicButton);
+                 });
+             }
+        }
+
+        // --- Translate Button Event Listener ---
+        translateButton.addEventListener('click', () => {
+            const targetLang = translateButton.getAttribute('data-lang');
+            console.log("Translate button clicked. Target language:", targetLang);
+            setLanguage(targetLang, true);
+        });
+
+        // --- Fullscreen Toggle Logic ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function updateFullscreenButtonIcon() {
+            if (document.fullscreenElement) {
+                fullscreenEnterIcon.classList.add('hidden');
+                fullscreenExitIcon.classList.remove('hidden');
+            } else {
+                fullscreenEnterIcon.classList.remove('hidden');
+                fullscreenExitIcon.classList.add('hidden');
+            }
+        }
+
+        fullscreenButton.addEventListener('click', toggleFullScreen);
+        document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
+
+        // --- Auto-Hide Dashboard Logic ---
+        let dashboardTimeout;
+        let lastScrollTop = 0;
+        const dashboardHideDelay = 6000;
+        const scrollThreshold = 10;
+
+        function showDashboard() {
+            bottomDashboard.classList.add('visible');
+            clearTimeout(dashboardTimeout);
+            dashboardTimeout = setTimeout(() => {
+                if (!bottomDashboard.matches(':hover')) {
+                     bottomDashboard.classList.remove('visible');
+                }
+            }, dashboardHideDelay);
+        }
+
+        function hideDashboard() {
+            clearTimeout(dashboardTimeout);
+            bottomDashboard.classList.remove('visible');
+        }
+
+        // Show dashboard initially
+        showDashboard();
+
+        // Handle scroll direction
+        window.addEventListener('scroll', () => {
+            let currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (Math.abs(currentScrollTop - lastScrollTop) <= scrollThreshold) return;
+            if (currentScrollTop > lastScrollTop) hideDashboard();
+            else showDashboard();
+            lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
+        }, { passive: true });
+
+        // Reset timer and show dashboard on other interactions
+        ['mousemove', 'touchstart'].forEach(eventType => {
+            window.addEventListener(eventType, showDashboard, { passive: true });
+        });
+
+        // Keep dashboard visible while hovering over it
+        bottomDashboard.addEventListener('mouseenter', () => clearTimeout(dashboardTimeout));
+        bottomDashboard.addEventListener('mouseleave', () => { if (bottomDashboard.classList.contains('visible')) showDashboard(); });
+
+
+        // --- Matrix Background Effect ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        let matrixInterval;
+
+        function setupMatrix() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const columns = canvas.width / font_size;
+            drops = [];
+            for (let x = 0; x < columns; x++) drops[x] = 1;
+        }
+
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%^&*()*&^%+-=/".split('');
+        const font_size = 12;
+        let drops = [];
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(229, 231, 235, 0.8)";
+            ctx.font = font_size + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * font_size, drops[i] * font_size);
+                if (drops[i] * font_size * 0.9 > canvas.height && Math.random() > 0.975) drops[i] = 0; // Adjusted drop reset
+                drops[i]++;
+            }
+        }
+
+        function startMatrix() {
+            setupMatrix();
+            if (matrixInterval) clearInterval(matrixInterval);
+            matrixInterval = setInterval(drawMatrix, 50);
+        }
+
+        window.addEventListener('resize', setupMatrix);
+
+        // --- Enhanced Event Delegation for Admin Actions and Sounds ---
+        document.body.addEventListener('click', function(event) {
+            const target = event.target;
+            const targetButton = target.closest('button'); // Find closest button
+
+            // --- Editor Toolbar Button Click ---
+            if (targetButton && targetButton.closest('.editor-toolbar')) {
+                 const command = targetButton.dataset.command;
+                 if (command) {
+                      const toolbar = targetButton.closest('.editor-toolbar');
+                      const summaryWrapper = toolbar.closest('.summary-wrapper');
+                      const targetEditor = summaryWrapper?.querySelector('.summary-content');
+                      if (targetEditor) {
+                           formatDoc(command, null, targetEditor);
+                      } else {
+                           console.error("Could not find target editor for toolbar button:", targetButton);
+                      }
+                 }
+            }
+            // --- Admin Edit Toggle Button Click ---
+            else if (targetButton && targetButton.classList.contains('admin-edit-toggle')) {
+                 // Only toggle menu if authenticated
+                 if (auth.currentUser) {
+                     const menuId = targetButton.dataset.menuTarget;
+                     const targetMenu = document.getElementById(menuId);
+                     if (targetMenu) {
+                         // Close other menus
+                         document.querySelectorAll('.admin-actions-menu.active').forEach(menu => {
+                             if (menu.id !== menuId) menu.classList.remove('active');
+                         });
+                         // Toggle current menu
+                         targetMenu.classList.toggle('active');
+                         console.log(`Toggled menu: ${menuId}, Active: ${targetMenu.classList.contains('active')}`);
+                     } else {
+                         console.error(`Target menu not found for ID: ${menuId}`);
+                     }
+                 } else {
+                     // If not authenticated, show login overlay
+                     adminLoginOverlay.classList.remove('hidden');
+                     loginErrorMessage.textContent = ''; // Clear previous errors
+                 }
+            }
+            // --- Specific Admin Action Button Click (inside menu) ---
+             else if (targetButton && targetButton.closest('.admin-actions-menu')) {
+                 handleAdminAction(targetButton); // handleAdminAction will check authentication
+             }
+            // --- Remove Video Button Click ---
+             else if (targetButton && targetButton.classList.contains('remove-video-btn')) {
+                 const topicId = targetButton.dataset.topicId;
+                 const videoKey = targetButton.dataset.videoKey;
+                 if (topicId && videoKey) {
+                      handleAdminAction(targetButton); // handleAdminAction will check authentication
+                 }
+             }
+            // --- Video List Item Click (Switch Main Player) ---
+             else if (target.closest('.video-list-item')) {
+                 const videoItem = target.closest('.video-list-item');
+                 const videoUrl = videoItem.dataset.url;
+                 const videoListContainer = videoItem.parentElement;
+                 const topicSection = videoListContainer.closest('.content-section');
+                 const mainPlayerIframe = topicSection.querySelector('.main-video-player iframe');
+
+                 if (videoUrl && mainPlayerIframe) {
+                      // Ensure the main player iframe src is updated to HTTPS
+                      const httpsVideoUrl = videoUrl.replace('http://', 'https://');
+                      mainPlayerIframe.src = httpsVideoUrl;
+                      // Update active state in the list
+                      videoListContainer.querySelectorAll('.video-list-item').forEach(item => item.classList.remove('active-video'));
+                      videoItem.classList.add('active-video');
+                 }
+             }
+            // --- Quiz Button Click ---
+             else if (targetButton && targetButton.classList.contains('quiz-button')) {
+                 const quizUrl = targetButton.dataset.url; // Get URL from data-url attribute
+                 if (quizUrl && quizUrl !== '#' && quizUrl.startsWith('http')) { // Basic validation for http/https
+                     console.log(`Opening Quiz link: ${quizUrl}`);
+                     window.open(quizUrl, '_blank'); // Open in a new tab
+                 } else {
+                     console.log("Quiz button clicked, but no valid URL is set.");
+                     alert("No quiz available for this topic yet."); // Inform user if no link is set
+                 }
+             }
+            // --- Close admin menu if clicking outside ---
+             else if (!target.closest('.admin-actions-menu') && !target.closest('.admin-edit-toggle') && !target.closest('.admin-login-overlay')) {
+                 document.querySelectorAll('.admin-actions-menu.active').forEach(menu => menu.classList.remove('active'));
+                 // Hide login overlay if clicking outside the form itself
+                 if (!adminLoginForm.contains(target)) {
+                     adminLoginOverlay.classList.add('hidden');
+                 }
+             }
+
+        }, true); // Use capture phase
+
+        // Handle color input change separately using event delegation
+        contentDisplayArea.addEventListener('change', function(event) {
+            const target = event.target;
+            if (target.matches('.editor-toolbar input[type="color"][data-command="foreColor"]')) {
+                // Find the associated editor for this color input
+                const toolbar = target.closest('.editor-toolbar');
+                const summaryWrapper = toolbar.closest('.summary-wrapper');
+                const targetEditor = summaryWrapper?.querySelector('.summary-content'); // Optional chaining
+                 if (targetEditor) {
+                      formatDoc('foreColor', target.value, targetEditor); // Pass the specific editor
+                 } else {
+                      console.error("Could not find target editor for color input:", target);
+                 }
+            }
+        });
+
+        // --- Firebase Authentication Logic ---
+
+        // Handle Admin Dashboard (Gear Icon) Click
+        adminDashboardButton.addEventListener('click', () => {
+            // This button is now only visible when ?mode=admin is in the URL
+            // Clicking it should trigger the login if not authenticated
+            if (!auth.currentUser) {
+                adminLoginOverlay.classList.remove('hidden');
+                loginErrorMessage.textContent = ''; // Clear previous errors
+            } else {
+                // If already logged in, maybe close any open menus or do nothing specific
+                console.log("Admin gear clicked while logged in (in ?mode=admin URL).");
+                 document.querySelectorAll('.admin-actions-menu.active').forEach(menu => menu.classList.remove('active'));
+            }
+        });
+
+        // Handle Login Button Click
+        adminLoginButton.addEventListener('click', () => {
+            const email = adminEmailInput.value;
+            const password = adminPasswordInput.value;
+
+            if (!email || !password) {
+                loginErrorMessage.textContent = "Please enter both email and password.";
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in successfully
+                    const user = userCredential.user;
+                    console.log("User logged in:", user.email);
+                    adminLoginOverlay.classList.add('hidden'); // Hide login form
+                    loginErrorMessage.textContent = ''; // Clear error message
+                    // onAuthStateChanged listener will now check for ?mode=admin and add the admin-mode class
+                })
+                .catch((error) => {
+                    // Handle login errors
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.error("Login error:", errorCode, errorMessage);
+                    loginErrorMessage.textContent = `Login failed: ${errorMessage}`;
+                });
+        });
+
+        // Handle Logout Button Click
+        adminLogoutButton.addEventListener('click', () => {
+            auth.signOut()
+                .then(() => {
+                    // Sign-out successful.
+                    console.log("User logged out.");
+                    // onAuthStateChanged listener will remove the admin-mode class
+                })
+                .catch((error) => {
+                    // An error happened.
+                    console.error("Logout error:", error);
+                    alert("Logout failed. Please try again.");
+                });
+        });
+
+
+        // Listen for authentication state changes
+        auth.onAuthStateChanged((user) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdminModeURL = urlParams.get('mode') === 'admin';
+
+            if (user) {
+                // User is signed in
+                console.log("Auth state changed: User is logged in.");
+                // Add admin-mode class ONLY if ?mode=admin is also present
+                if (isAdminModeURL) {
+                    document.body.classList.add('admin-mode');
+                    console.log("Admin mode activated (User logged in + ?mode=admin).");
+                } else {
+                     // User is logged in but not in admin mode URL
+                     document.body.classList.remove('admin-mode');
+                     console.log("Admin mode deactivated (User logged in but not in ?mode=admin URL).");
+                }
+            } else {
+                // User is signed out.
+                console.log("Auth state changed: User is logged out.");
+                // Remove admin-mode class
+                document.body.classList.remove('admin-mode');
+                // Hide all admin menus if any are open
+                document.querySelectorAll('.admin-actions-menu.active').forEach(menu => menu.classList.remove('active'));
+            }
+
+            // This part controls the visibility of the main gear icon based *only* on the URL
+            const currentUrlParams = new URLSearchParams(window.location.search);
+            const isCurrentAdminModeURL = currentUrlParams.get('mode') === 'admin';
+            if (isCurrentAdminModeURL) {
+                 document.body.classList.add('admin-url-mode'); // Add a class to show the gear icon
+                 console.log("Admin URL mode activated (?mode=admin).");
+            } else {
+                 document.body.classList.remove('admin-url-mode'); // Remove the class to hide the gear icon
+                 console.log("Admin URL mode deactivated (no ?mode=admin).");
+            }
+        });
+
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => { // Wait for DOM to be ready
+            const updatedContentSections = contentDisplayArea.querySelectorAll('.content-section');
+            updatedContentSections.forEach(section => section.classList.remove('visible'));
+            if (placeholderContent) placeholderContent.style.display = 'block';
+            const initialLang = 'en';
+            setLanguage(initialLang, false); // Apply initial translations
+            startMatrix(); // Enable matrix effect by default
+            updateFullscreenButtonIcon(); // Set initial fullscreen icon state
+
+            // Initial check for admin URL mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdminModeURL = urlParams.get('mode') === 'admin';
+            if (isAdminModeURL) {
+                 document.body.classList.add('admin-url-mode');
+                 console.log("Initial check: Admin URL mode activated (?mode=admin).");
+            } else {
+                 document.body.classList.remove('admin-url-mode');
+                 console.log("Initial check: Admin URL mode deactivated (no ?mode=admin).");
+            }
+
+            // The onAuthStateChanged listener will handle setting the initial admin-mode class
+        });
+
+    </script>
+
+</body>
+</html>
